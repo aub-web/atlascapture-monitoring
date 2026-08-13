@@ -10,6 +10,12 @@ export function getSalesBusinessesWithUtilization() {
   });
 }
 
+export function getAllSalesUtilizationEntries() {
+  return prisma.salesUtilizationEntry.findMany({
+    orderBy: { date: "asc" },
+  });
+}
+
 export function getSalesBusinessWithUtilization(id: string) {
   return prisma.salesBusiness.findUnique({
     where: { id },

@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 const TABS = [
   { href: "/", label: "Outbound Monitoring" },
   { href: "/sales", label: "Sales Monitoring" },
+  { href: "/overall", label: "Overall Monitoring" },
 ];
 
 export default function TopNav() {
@@ -18,9 +19,7 @@ export default function TopNav() {
           {TABS.map((tab) => {
             const active =
               tab.href === "/"
-                ? pathname === "/" ||
-                  pathname.startsWith("/businesses") ||
-                  pathname.startsWith("/summary")
+                ? pathname === "/" || pathname.startsWith("/businesses")
                 : pathname.startsWith(tab.href);
             return (
               <Link

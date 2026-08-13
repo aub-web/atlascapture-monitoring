@@ -19,12 +19,6 @@ export default async function Home() {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <Link
-            href="/summary"
-            className="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-100"
-          >
-            Summary
-          </Link>
           <a
             href="/api/export/outbound"
             className="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-100"
