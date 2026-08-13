@@ -4,9 +4,16 @@ import { getBusinessWithCheckIns } from "@/lib/data";
 import { deleteBusiness } from "@/lib/actions/business-actions";
 import { categoryLabel, MONITORING_CADENCE_DAYS } from "@/lib/constants";
 import { averageHours } from "@/lib/hours";
+import {
+  createUtilizationEntry,
+  deleteUtilizationEntry,
+} from "@/lib/actions/utilization-actions";
 import CheckInForm from "@/components/CheckInForm";
 import CheckInHistory from "@/components/CheckInHistory";
 import ConfirmSubmitButton from "@/components/ConfirmSubmitButton";
+import UtilizationForm from "@/components/UtilizationForm";
+import UtilizationHistory from "@/components/UtilizationHistory";
+import UtilizationSummary from "@/components/UtilizationSummary";
 
 export default async function BusinessDetailPage({
   params,
@@ -77,6 +84,43 @@ export default async function BusinessDetailPage({
         </div>
         <div className="mt-3">
           <CheckInHistory businessId={business.id} checkIns={business.checkIns} />
+        </div>
+      </section>
+
+      <section className="mt-8">
+        <h2 className="text-sm font-semibold tracking-wide text-zinc-500 uppercase">
+          Log device utilization
+        </h2>
+        <p className="mt-1 text-xs text-zinc-400">
+          Multicam = 6h per device · Mono = 4h per device
+        </p>
+        <div className="mt-3 rounded-lg border border-zinc-200 bg-white p-4">
+          <UtilizationForm
+            businessId={business.id}
+            action={createUtilizationEntry}
+          />
+        </div>
+      </section>
+
+      <section className="mt-8">
+        <h2 className="text-sm font-semibold tracking-wide text-zinc-500 uppercase">
+          Utilization summary
+        </h2>
+        <div className="mt-3">
+          <UtilizationSummary entries={business.utilizationEntries} />
+        </div>
+      </section>
+
+      <section className="mt-8">
+        <h2 className="text-sm font-semibold tracking-wide text-zinc-500 uppercase">
+          Utilization history
+        </h2>
+        <div className="mt-3">
+          <UtilizationHistory
+            businessId={business.id}
+            entries={business.utilizationEntries}
+            deleteAction={deleteUtilizationEntry}
+          />
         </div>
       </section>
     </main>

@@ -18,6 +18,7 @@ export function getBusinessWithCheckIns(id: string) {
     where: { id },
     include: {
       checkIns: { orderBy: { checkInDate: "desc" } },
+      utilizationEntries: { orderBy: { date: "desc" } },
     },
   });
 }

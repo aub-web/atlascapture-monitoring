@@ -19,7 +19,8 @@ model Business {
   partnerAssociate String
   createdAt        DateTime @default(now())
 
-  checkIns CheckIn[]
+  checkIns           CheckIn[]
+  utilizationEntries UtilizationEntry[]
 
   @@index([category])
   @@index([partnerAssociate])
@@ -51,4 +52,50 @@ model CheckIn {
 
   @@index([businessId])
   @@index([checkInDate])
+}
+
+// Device utilization entries for Outbound Monitoring businesses — separate
+// from CheckIn. Hours are derived: deviceCount * (6 for MULTICAM, 4 for MONO)
+// — see src/lib/utilization.ts.
+model UtilizationEntry {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  date        DateTime
+  deviceType  String
+  deviceCount Int
+
+  createdAt DateTime @default(now())
+
+  @@index([businessId])
+  @@index([date])
+}
+
+// Sales Monitoring is a separate tracking area from Outbound Monitoring —
+// its own businesses, agents, and utilization entries.
+model SalesBusiness {
+  id         String   @id @default(cuid())
+  name       String
+  salesAgent String
+  createdAt  DateTime @default(now())
+
+  utilizationEntries SalesUtilizationEntry[]
+
+  @@index([salesAgent])
+}
+
+model SalesUtilizationEntry {
+  id         String        @id @default(cuid())
+  businessId String
+  business   SalesBusiness @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  date        DateTime
+  deviceType  String
+  deviceCount Int
+
+  createdAt DateTime @default(now())
+
+  @@index([businessId])
+  @@index([date])
 }
