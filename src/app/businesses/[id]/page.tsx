@@ -91,9 +91,6 @@ export default async function BusinessDetailPage({
         <h2 className="text-sm font-semibold tracking-wide text-zinc-500 uppercase">
           Log device utilization
         </h2>
-        <p className="mt-1 text-xs text-zinc-400">
-          Multicam = 6h per device · Mono = 4h per device
-        </p>
         <div className="mt-3 rounded-lg border border-zinc-200 bg-white p-4">
           <UtilizationForm
             businessId={business.id}

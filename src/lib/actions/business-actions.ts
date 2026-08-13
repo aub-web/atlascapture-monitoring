@@ -3,7 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { BUSINESS_CATEGORIES, PARTNER_ASSOCIATES } from "@/lib/constants";
+import { BUSINESS_CATEGORIES, PARTNER_ASSOCIATES, categoryLabel } from "@/lib/constants";
+import { logAudit } from "@/lib/audit";
 
 export type CreateBusinessState = { error: string } | null;
 
@@ -29,13 +30,28 @@ export async function createBusiness(
     data: { name, category, partnerAssociate },
   });
 
+  await logAudit(
+    "CREATE",
+    "Business",
+    business.id,
+    `Created business "${business.name}" (${categoryLabel(category)}, ${partnerAssociate})`,
+  );
+
   revalidatePath("/");
   redirect(`/businesses/${business.id}`);
 }
 
 export async function deleteBusiness(formData: FormData): Promise<void> {
   const id = String(formData.get("id") ?? "");
-  await prisma.business.delete({ where: { id } });
+  const business = await prisma.business.delete({ where: { id } });
+
+  await logAudit(
+    "DELETE",
+    "Business",
+    id,
+    `Deleted business "${business.name}" (${categoryLabel(business.category)}, ${business.partnerAssociate})`,
+  );
+
   revalidatePath("/");
   redirect("/");
 }

@@ -99,3 +99,16 @@ model SalesUtilizationEntry {
   @@index([businessId])
   @@index([date])
 }
+
+// Admin-visible log of every create/delete action across both monitoring
+// areas — see src/lib/audit.ts.
+model AuditLogEntry {
+  id         String   @id @default(cuid())
+  action     String // "CREATE" | "DELETE"
+  entityType String
+  entityId   String
+  summary    String
+  createdAt  DateTime @default(now())
+
+  @@index([createdAt])
+}

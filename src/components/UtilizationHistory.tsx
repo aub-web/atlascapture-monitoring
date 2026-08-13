@@ -3,6 +3,10 @@ import { deviceTypeLabel } from "@/lib/constants";
 import { utilizationHoursForEntry } from "@/lib/utilization";
 import ConfirmSubmitButton from "@/components/ConfirmSubmitButton";
 
+function formatDeviceCount(count: number): string {
+  return count === 1 ? "1 device" : `${count} devices`;
+}
+
 type Entry = {
   id: string;
   date: Date;
@@ -39,8 +43,10 @@ export default function UtilizationHistory({
               {formatDate(entry.date)}
             </p>
             <p className="text-sm text-zinc-500">
-              {entry.deviceCount} × {deviceTypeLabel(entry.deviceType)} ={" "}
+              {deviceTypeLabel(entry.deviceType)} ·{" "}
+              {formatDeviceCount(entry.deviceCount)} ·{" "}
               {utilizationHoursForEntry(entry.deviceType, entry.deviceCount)}h
+              logged
             </p>
           </div>
           <form action={deleteAction}>

@@ -5,6 +5,8 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { DEVICE_TYPES } from "@/lib/constants";
 import { computeExpectedHours } from "@/lib/hours";
+import { formatDate } from "@/lib/date";
+import { logAudit } from "@/lib/audit";
 
 export type CreateCheckInState = { error: string } | null;
 
@@ -54,7 +56,7 @@ export async function createCheckIn(
     return { error: "Choose a valid device type." };
   }
 
-  await prisma.checkIn.create({
+  const checkIn = await prisma.checkIn.create({
     data: {
       businessId,
       checkInDate,
@@ -66,7 +68,15 @@ export async function createCheckIn(
       whatWentWrong: optionalText(formData.get("whatWentWrong")),
       whatNeedsImprovement: optionalText(formData.get("whatNeedsImprovement")),
     },
+    include: { business: { select: { name: true } } },
   });
+
+  await logAudit(
+    "CREATE",
+    "CheckIn",
+    checkIn.id,
+    `Logged check-in for "${checkIn.business.name}" on ${formatDate(checkInDate)}`,
+  );
 
   revalidatePath(`/businesses/${businessId}`);
   revalidatePath("/");
@@ -76,7 +86,18 @@ export async function createCheckIn(
 export async function deleteCheckIn(formData: FormData): Promise<void> {
   const id = String(formData.get("id") ?? "");
   const businessId = String(formData.get("businessId") ?? "");
-  await prisma.checkIn.delete({ where: { id } });
+  const checkIn = await prisma.checkIn.delete({
+    where: { id },
+    include: { business: { select: { name: true } } },
+  });
+
+  await logAudit(
+    "DELETE",
+    "CheckIn",
+    id,
+    `Deleted check-in for "${checkIn.business.name}" dated ${formatDate(checkIn.checkInDate)}`,
+  );
+
   revalidatePath(`/businesses/${businessId}`);
   revalidatePath("/");
   redirect(`/businesses/${businessId}`);
