@@ -18,7 +18,9 @@ export default function TopNav() {
           {TABS.map((tab) => {
             const active =
               tab.href === "/"
-                ? pathname === "/" || pathname.startsWith("/businesses")
+                ? pathname === "/" ||
+                  pathname.startsWith("/businesses") ||
+                  pathname.startsWith("/summary")
                 : pathname.startsWith(tab.href);
             return (
               <Link

@@ -13,6 +13,12 @@ export function getBusinessesWithLatestCheckIn() {
   });
 }
 
+export function getAllUtilizationEntries() {
+  return prisma.utilizationEntry.findMany({
+    orderBy: { date: "asc" },
+  });
+}
+
 export function getBusinessWithCheckIns(id: string) {
   return prisma.business.findUnique({
     where: { id },
