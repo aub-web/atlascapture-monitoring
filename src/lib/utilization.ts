@@ -1,6 +1,7 @@
 // Device count per business, multiplied by a fixed hours-per-device figure,
-// gives the utilization hours for that entry: 6h per Multicam device, 4h per
-// Mono device.
+// gives the capacity hours for that entry: 6h per Multicam device, 4h per
+// Mono device. recordedHours is the actual hours logged that day, entered by
+// the user — comparing the two gives a utilization percentage.
 export const HOURS_PER_DEVICE: Record<string, number> = {
   MONO: 4,
   MULTICAM: 6,
@@ -13,12 +14,25 @@ export function utilizationHoursForEntry(
   return deviceCount * (HOURS_PER_DEVICE[deviceType] ?? 0);
 }
 
+function round1(value: number): number {
+  return Math.round(value * 10) / 10;
+}
+
+export function utilizationPercent(
+  recordedHours: number,
+  capacityHours: number,
+): number | null {
+  if (capacityHours <= 0) return null;
+  return round1((recordedHours / capacityHours) * 100);
+}
+
 export type UtilizationPeriod = "daily" | "weekly" | "monthly";
 
 export type UtilizationEntryLike = {
   date: Date;
   deviceType: string;
   deviceCount: number;
+  recordedHours: number;
 };
 
 export type UtilizationBucket = {
@@ -27,6 +41,7 @@ export type UtilizationBucket = {
   monoHours: number;
   multicamHours: number;
   totalHours: number;
+  recordedHours: number;
 };
 
 function startOfDay(date: Date): Date {
@@ -84,6 +99,7 @@ export function groupUtilization(
       if (isMulticam) existing.multicamHours += hours;
       else existing.monoHours += hours;
       existing.totalHours += hours;
+      existing.recordedHours += entry.recordedHours;
     } else {
       buckets.set(key, {
         label: bucketLabel(start, period),
@@ -91,6 +107,7 @@ export function groupUtilization(
         monoHours: isMulticam ? 0 : hours,
         multicamHours: isMulticam ? hours : 0,
         totalHours: hours,
+        recordedHours: entry.recordedHours,
       });
     }
   }
@@ -104,13 +121,21 @@ export function totalUtilization(entries: UtilizationEntryLike[]): {
   monoHours: number;
   multicamHours: number;
   totalHours: number;
+  recordedHours: number;
 } {
   let monoHours = 0;
   let multicamHours = 0;
+  let recordedHours = 0;
   for (const entry of entries) {
     const hours = utilizationHoursForEntry(entry.deviceType, entry.deviceCount);
     if (entry.deviceType === "MULTICAM") multicamHours += hours;
     else monoHours += hours;
+    recordedHours += entry.recordedHours;
   }
-  return { monoHours, multicamHours, totalHours: monoHours + multicamHours };
+  return {
+    monoHours,
+    multicamHours,
+    totalHours: monoHours + multicamHours,
+    recordedHours,
+  };
 }

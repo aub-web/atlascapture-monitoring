@@ -1,6 +1,6 @@
 import { formatDate } from "@/lib/date";
 import { deviceTypeLabel } from "@/lib/constants";
-import { utilizationHoursForEntry } from "@/lib/utilization";
+import { utilizationHoursForEntry, utilizationPercent } from "@/lib/utilization";
 import ConfirmSubmitButton from "@/components/ConfirmSubmitButton";
 
 function formatDeviceCount(count: number): string {
@@ -12,6 +12,7 @@ type Entry = {
   date: Date;
   deviceType: string;
   deviceCount: number;
+  recordedHours: number;
 };
 
 export default function UtilizationHistory({
@@ -33,7 +34,13 @@ export default function UtilizationHistory({
 
   return (
     <ul className="space-y-2">
-      {entries.map((entry) => (
+      {entries.map((entry) => {
+        const capacityHours = utilizationHoursForEntry(
+          entry.deviceType,
+          entry.deviceCount,
+        );
+        const percent = utilizationPercent(entry.recordedHours, capacityHours);
+        return (
         <li
           key={entry.id}
           className="flex items-center justify-between rounded-lg border border-zinc-200 bg-white px-4 py-3"
@@ -45,8 +52,8 @@ export default function UtilizationHistory({
             <p className="text-sm text-zinc-500">
               {deviceTypeLabel(entry.deviceType)} ·{" "}
               {formatDeviceCount(entry.deviceCount)} ·{" "}
-              {utilizationHoursForEntry(entry.deviceType, entry.deviceCount)}h
-              logged
+              {entry.recordedHours}h recorded
+              {percent !== null && ` · ${percent}% utilized`}
             </p>
           </div>
           <form action={deleteAction}>
@@ -59,7 +66,8 @@ export default function UtilizationHistory({
             />
           </form>
         </li>
-      ))}
+        );
+      })}
     </ul>
   );
 }

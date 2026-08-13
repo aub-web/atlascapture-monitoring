@@ -66,22 +66,42 @@ export default function UtilizationForm({
         </div>
       </div>
 
-      <div>
-        <label
-          htmlFor="deviceCount"
-          className="block text-sm font-medium text-zinc-700"
-        >
-          Number of devices
-        </label>
-        <input
-          id="deviceCount"
-          name="deviceCount"
-          type="number"
-          min={1}
-          step={1}
-          required
-          className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-900"
-        />
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label
+            htmlFor="deviceCount"
+            className="block text-sm font-medium text-zinc-700"
+          >
+            Number of devices
+          </label>
+          <input
+            id="deviceCount"
+            name="deviceCount"
+            type="number"
+            min={1}
+            step={1}
+            required
+            className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-900"
+          />
+        </div>
+
+        <div>
+          <label
+            htmlFor="recordedHours"
+            className="block text-sm font-medium text-zinc-700"
+          >
+            Total recorded hours
+          </label>
+          <input
+            id="recordedHours"
+            name="recordedHours"
+            type="number"
+            min={0}
+            step={0.5}
+            required
+            className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-900"
+          />
+        </div>
       </div>
 
       {state?.error && (

@@ -4,6 +4,7 @@ import { useState } from "react";
 import {
   groupUtilization,
   totalUtilization,
+  utilizationPercent,
   type UtilizationEntryLike,
   type UtilizationPeriod,
 } from "@/lib/utilization";
@@ -24,7 +25,8 @@ function DeviceTypePanel({
   period: UtilizationPeriod;
 }) {
   const buckets = groupUtilization(entries, period);
-  const totalHours = totalUtilization(entries).totalHours;
+  const totals = totalUtilization(entries);
+  const allTimePercent = utilizationPercent(totals.recordedHours, totals.totalHours);
 
   return (
     <div>
@@ -33,7 +35,18 @@ function DeviceTypePanel({
           {label}
         </h3>
         <p className="text-xs text-zinc-500">
-          All-time: <span className="font-medium text-zinc-700">{totalHours}h</span>
+          All-time:{" "}
+          <span className="font-medium text-zinc-700">
+            {totals.recordedHours}h
+          </span>{" "}
+          recorded
+          {allTimePercent !== null && (
+            <>
+              {" "}
+              · <span className="font-medium text-zinc-700">{allTimePercent}%</span>{" "}
+              utilized
+            </>
+          )}
         </p>
       </div>
 
@@ -47,21 +60,31 @@ function DeviceTypePanel({
             <thead>
               <tr className="border-b border-zinc-200 text-xs text-zinc-500">
                 <th className="px-4 py-2 font-medium">Period</th>
-                <th className="px-4 py-2 font-medium">Hours</th>
+                <th className="px-4 py-2 font-medium">Recorded</th>
+                <th className="px-4 py-2 font-medium">Utilization</th>
               </tr>
             </thead>
             <tbody>
-              {buckets.map((bucket) => (
-                <tr
-                  key={bucket.start.getTime()}
-                  className="border-b border-zinc-100 last:border-0"
-                >
-                  <td className="px-4 py-2 text-zinc-900">{bucket.label}</td>
-                  <td className="px-4 py-2 font-medium text-zinc-900">
-                    {bucket.totalHours}h
-                  </td>
-                </tr>
-              ))}
+              {buckets.map((bucket) => {
+                const percent = utilizationPercent(
+                  bucket.recordedHours,
+                  bucket.totalHours,
+                );
+                return (
+                  <tr
+                    key={bucket.start.getTime()}
+                    className="border-b border-zinc-100 last:border-0"
+                  >
+                    <td className="px-4 py-2 text-zinc-900">{bucket.label}</td>
+                    <td className="px-4 py-2 text-zinc-600">
+                      {bucket.recordedHours}h
+                    </td>
+                    <td className="px-4 py-2 font-medium text-zinc-900">
+                      {percent === null ? "—" : `${percent}%`}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

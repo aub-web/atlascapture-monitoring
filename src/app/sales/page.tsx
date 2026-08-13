@@ -16,12 +16,20 @@ export default async function SalesMonitoringHome() {
             Device utilization by sales agent
           </p>
         </div>
-        <Link
-          href="/sales/businesses/new"
-          className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800"
-        >
-          + New Business
-        </Link>
+        <div className="flex items-center gap-3">
+          <a
+            href="/api/export/sales"
+            className="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-100"
+          >
+            Export CSV
+          </a>
+          <Link
+            href="/sales/businesses/new"
+            className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800"
+          >
+            + New Business
+          </Link>
+        </div>
       </div>
 
       <div className="mt-8 space-y-2">

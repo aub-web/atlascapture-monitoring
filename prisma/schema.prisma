@@ -55,16 +55,18 @@ model CheckIn {
 }
 
 // Device utilization entries for Outbound Monitoring businesses — separate
-// from CheckIn. Hours are derived: deviceCount * (6 for MULTICAM, 4 for MONO)
-// — see src/lib/utilization.ts.
+// from CheckIn. Capacity hours are derived: deviceCount * (6 for MULTICAM, 4
+// for MONO); recordedHours is the actual hours logged that day, entered by
+// the user — see src/lib/utilization.ts.
 model UtilizationEntry {
   id         String   @id @default(cuid())
   businessId String
   business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
 
-  date        DateTime
-  deviceType  String
-  deviceCount Int
+  date          DateTime
+  deviceType    String
+  deviceCount   Int
+  recordedHours Float    @default(0)
 
   createdAt DateTime @default(now())
 
@@ -90,9 +92,10 @@ model SalesUtilizationEntry {
   businessId String
   business   SalesBusiness @relation(fields: [businessId], references: [id], onDelete: Cascade)
 
-  date        DateTime
-  deviceType  String
-  deviceCount Int
+  date          DateTime
+  deviceType    String
+  deviceCount   Int
+  recordedHours Float    @default(0)
 
   createdAt DateTime @default(now())
 

@@ -18,6 +18,7 @@ export async function createSalesUtilizationEntry(
   const dateValue = String(formData.get("date") ?? "");
   const deviceType = String(formData.get("deviceType") ?? "");
   const deviceCountValue = String(formData.get("deviceCount") ?? "");
+  const recordedHoursValue = String(formData.get("recordedHours") ?? "");
 
   if (!businessId) {
     return { error: "Missing business." };
@@ -36,9 +37,13 @@ export async function createSalesUtilizationEntry(
   if (!Number.isInteger(deviceCount) || deviceCount < 1) {
     return { error: "Device count must be a whole number, 1 or more." };
   }
+  const recordedHours = Number(recordedHoursValue);
+  if (!Number.isFinite(recordedHours) || recordedHours < 0) {
+    return { error: "Recorded hours must be a number, 0 or more." };
+  }
 
   const entry = await prisma.salesUtilizationEntry.create({
-    data: { businessId, date, deviceType, deviceCount },
+    data: { businessId, date, deviceType, deviceCount, recordedHours },
     include: { business: { select: { name: true } } },
   });
 
@@ -46,7 +51,7 @@ export async function createSalesUtilizationEntry(
     "CREATE",
     "SalesUtilizationEntry",
     entry.id,
-    `Logged ${deviceCount} ${deviceTypeLabel(deviceType)} device(s) (${utilizationHoursForEntry(deviceType, deviceCount)}h) for "${entry.business.name}" on ${formatDate(date)}`,
+    `Logged ${deviceCount} ${deviceTypeLabel(deviceType)} device(s), ${recordedHours}h recorded (of ${utilizationHoursForEntry(deviceType, deviceCount)}h capacity) for "${entry.business.name}" on ${formatDate(date)}`,
   );
 
   revalidatePath(`/sales/businesses/${businessId}`);

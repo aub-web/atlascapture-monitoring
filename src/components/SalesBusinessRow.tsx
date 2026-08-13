@@ -1,5 +1,9 @@
 import Link from "next/link";
-import { totalUtilization, type UtilizationEntryLike } from "@/lib/utilization";
+import {
+  totalUtilization,
+  utilizationPercent,
+  type UtilizationEntryLike,
+} from "@/lib/utilization";
 
 export default function SalesBusinessRow({
   id,
@@ -13,6 +17,7 @@ export default function SalesBusinessRow({
   utilizationEntries: UtilizationEntryLike[];
 }) {
   const totals = totalUtilization(utilizationEntries);
+  const percent = utilizationPercent(totals.recordedHours, totals.totalHours);
 
   return (
     <Link
@@ -29,8 +34,13 @@ export default function SalesBusinessRow({
           <p className="text-zinc-400">No utilization logged yet</p>
         ) : (
           <p className="text-zinc-700">
-            {totals.monoHours}h Mono · {totals.multicamHours}h Multicam ·{" "}
-            <span className="font-medium">{totals.totalHours}h total</span>
+            {totals.recordedHours}h recorded
+            {percent !== null && (
+              <>
+                {" "}
+                · <span className="font-medium">{percent}% utilized</span>
+              </>
+            )}
           </p>
         )}
       </div>
