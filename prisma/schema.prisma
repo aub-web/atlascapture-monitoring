@@ -1,5 +1,5 @@
 // Prisma schema for outbound account monitoring (direct business + enterprise).
-// Runs on SQLite via the better-sqlite3 driver adapter — see src/lib/prisma.ts.
+// Runs on Postgres (Neon) via the pg driver adapter — see src/lib/prisma.ts.
 
 generator client {
   provider = "prisma-client"
@@ -7,11 +7,11 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
 }
 
-// SQLite has no native enum support, so category/associate are plain strings
-// validated against the fixed lists in src/lib/constants.ts.
+// category/associate are plain strings validated against the fixed lists in
+// src/lib/constants.ts.
 model Business {
   id               String   @id @default(cuid())
   name             String
