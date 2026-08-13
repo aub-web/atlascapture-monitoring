@@ -1,0 +1,41 @@
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { prisma } from "@/lib/prisma";
+import { BUSINESS_CATEGORIES, PARTNER_ASSOCIATES } from "@/lib/constants";
+
+export type CreateBusinessState = { error: string } | null;
+
+export async function createBusiness(
+  _prevState: CreateBusinessState,
+  formData: FormData,
+): Promise<CreateBusinessState> {
+  const name = String(formData.get("name") ?? "").trim();
+  const category = String(formData.get("category") ?? "");
+  const partnerAssociate = String(formData.get("partnerAssociate") ?? "");
+
+  if (!name) {
+    return { error: "Business name is required." };
+  }
+  if (!BUSINESS_CATEGORIES.some((c) => c.value === category)) {
+    return { error: "Choose a valid category." };
+  }
+  if (!PARTNER_ASSOCIATES.includes(partnerAssociate as (typeof PARTNER_ASSOCIATES)[number])) {
+    return { error: "Choose a valid partner associate." };
+  }
+
+  const business = await prisma.business.create({
+    data: { name, category, partnerAssociate },
+  });
+
+  revalidatePath("/");
+  redirect(`/businesses/${business.id}`);
+}
+
+export async function deleteBusiness(formData: FormData): Promise<void> {
+  const id = String(formData.get("id") ?? "");
+  await prisma.business.delete({ where: { id } });
+  revalidatePath("/");
+  redirect("/");
+}

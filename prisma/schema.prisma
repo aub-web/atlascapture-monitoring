@@ -1,0 +1,54 @@
+// Prisma schema for outbound account monitoring (direct business + enterprise).
+// Runs on SQLite via the better-sqlite3 driver adapter — see src/lib/prisma.ts.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// SQLite has no native enum support, so category/associate are plain strings
+// validated against the fixed lists in src/lib/constants.ts.
+model Business {
+  id               String   @id @default(cuid())
+  name             String
+  category         String
+  partnerAssociate String
+  createdAt        DateTime @default(now())
+
+  checkIns CheckIn[]
+
+  @@index([category])
+  @@index([partnerAssociate])
+}
+
+model CheckIn {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  checkInDate DateTime
+
+  // How many outbound calls were actually recorded during this check-in period.
+  recordingsCount Int
+  // Time of day the rep is expected to start/stop recording, e.g. "09:00".
+  startTime String
+  stopTime  String
+  // Expected recording hours, derived from startTime/stopTime minus the
+  // lunch break — see computeExpectedHours in src/lib/hours.ts.
+  expectedHours Float
+
+  // Recording setup used: "MONO" or "MULTICAM".
+  deviceType String
+
+  whatWentWrong       String?
+  whatNeedsImprovement String?
+
+  createdAt DateTime @default(now())
+
+  @@index([businessId])
+  @@index([checkInDate])
+}
