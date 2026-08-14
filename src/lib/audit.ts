@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 
-export type AuditAction = "CREATE" | "DELETE";
+export type AuditAction = "CREATE" | "UPDATE" | "DELETE";
 
 export async function logAudit(
   action: AuditAction,

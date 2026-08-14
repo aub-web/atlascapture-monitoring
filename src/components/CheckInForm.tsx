@@ -5,22 +5,50 @@ import {
   createCheckIn,
   type CreateCheckInState,
 } from "@/lib/actions/checkin-actions";
-import { todayDateInputValue } from "@/lib/date";
+import { todayDateInputValue, toDateInputValue } from "@/lib/date";
 import { DEVICE_TYPES } from "@/lib/constants";
 import { computeExpectedHours } from "@/lib/hours";
 
-export default function CheckInForm({ businessId }: { businessId: string }) {
+type CheckInActionState = { error: string } | null;
+
+export default function CheckInForm({
+  businessId,
+  action = createCheckIn,
+  checkInId,
+  defaultValues,
+  submitLabel = "Log Check-in",
+  pendingLabel = "Saving…",
+}: {
+  businessId: string;
+  action?: (
+    state: CheckInActionState,
+    formData: FormData,
+  ) => Promise<CheckInActionState>;
+  checkInId?: string;
+  defaultValues?: {
+    checkInDate: Date;
+    startTime: string;
+    stopTime: string;
+    recordingsCount: number;
+    deviceType: string;
+    whatWentWrong: string | null;
+    whatNeedsImprovement: string | null;
+  };
+  submitLabel?: string;
+  pendingLabel?: string;
+}) {
   const [state, formAction, isPending] = useActionState<
     CreateCheckInState,
     FormData
-  >(createCheckIn, null);
-  const [startTime, setStartTime] = useState("");
-  const [stopTime, setStopTime] = useState("");
+  >(action, null);
+  const [startTime, setStartTime] = useState(defaultValues?.startTime ?? "");
+  const [stopTime, setStopTime] = useState(defaultValues?.stopTime ?? "");
   const expectedHours = computeExpectedHours(startTime, stopTime);
 
   return (
     <form action={formAction} className="space-y-4">
       <input type="hidden" name="businessId" value={businessId} />
+      {checkInId && <input type="hidden" name="id" value={checkInId} />}
 
       <div className="grid grid-cols-2 gap-4">
         <div>
@@ -35,7 +63,11 @@ export default function CheckInForm({ businessId }: { businessId: string }) {
             name="checkInDate"
             type="date"
             required
-            defaultValue={todayDateInputValue()}
+            defaultValue={
+              defaultValues
+                ? toDateInputValue(defaultValues.checkInDate)
+                : todayDateInputValue()
+            }
             className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-900"
           />
         </div>
@@ -92,6 +124,7 @@ export default function CheckInForm({ businessId }: { businessId: string }) {
             min={0}
             step={1}
             required
+            defaultValue={defaultValues?.recordingsCount}
             className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-900"
           />
         </div>
@@ -115,6 +148,7 @@ export default function CheckInForm({ businessId }: { businessId: string }) {
           id="deviceType"
           name="deviceType"
           required
+          defaultValue={defaultValues?.deviceType ?? ""}
           className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-900"
         >
           <option value="">Select device type</option>
@@ -137,6 +171,7 @@ export default function CheckInForm({ businessId }: { businessId: string }) {
           id="whatWentWrong"
           name="whatWentWrong"
           rows={2}
+          defaultValue={defaultValues?.whatWentWrong ?? ""}
           className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-900"
         />
       </div>
@@ -152,6 +187,7 @@ export default function CheckInForm({ businessId }: { businessId: string }) {
           id="whatNeedsImprovement"
           name="whatNeedsImprovement"
           rows={2}
+          defaultValue={defaultValues?.whatNeedsImprovement ?? ""}
           className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-900"
         />
       </div>
@@ -167,7 +203,7 @@ export default function CheckInForm({ businessId }: { businessId: string }) {
         disabled={isPending}
         className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 disabled:opacity-50"
       >
-        {isPending ? "Saving…" : "Log Check-in"}
+        {isPending ? pendingLabel : submitLabel}
       </button>
     </form>
   );

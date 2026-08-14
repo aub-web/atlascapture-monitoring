@@ -10,6 +10,7 @@ import ConfirmSubmitButton from "@/components/ConfirmSubmitButton";
 import UtilizationForm from "@/components/UtilizationForm";
 import UtilizationHistory from "@/components/UtilizationHistory";
 import UtilizationSummary from "@/components/UtilizationSummary";
+import { isAdminAuthenticated } from "@/lib/admin-auth";
 
 export default async function SalesBusinessDetailPage({
   params,
@@ -17,7 +18,10 @@ export default async function SalesBusinessDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const business = await getSalesBusinessWithUtilization(id);
+  const [business, isAdmin] = await Promise.all([
+    getSalesBusinessWithUtilization(id),
+    isAdminAuthenticated(),
+  ]);
 
   if (!business) {
     notFound();
@@ -36,14 +40,24 @@ export default async function SalesBusinessDetailPage({
           </h1>
           <p className="mt-1 text-sm text-zinc-500">{business.salesAgent}</p>
         </div>
-        <form action={deleteSalesBusiness}>
-          <input type="hidden" name="id" value={business.id} />
-          <ConfirmSubmitButton
-            label="Delete business"
-            confirmMessage={`Delete ${business.name} and all of its utilization entries?`}
-            className="shrink-0 text-xs font-medium text-red-500 hover:text-red-700"
-          />
-        </form>
+        <div className="flex shrink-0 items-center gap-3">
+          {isAdmin && (
+            <Link
+              href={`/sales/businesses/${business.id}/edit`}
+              className="text-xs font-medium text-zinc-500 hover:text-zinc-900"
+            >
+              Edit
+            </Link>
+          )}
+          <form action={deleteSalesBusiness}>
+            <input type="hidden" name="id" value={business.id} />
+            <ConfirmSubmitButton
+              label="Delete business"
+              confirmMessage={`Delete ${business.name} and all of its utilization entries?`}
+              className="text-xs font-medium text-red-500 hover:text-red-700"
+            />
+          </form>
+        </div>
       </div>
 
       <section className="mt-8">
@@ -76,6 +90,8 @@ export default async function SalesBusinessDetailPage({
             businessId={business.id}
             entries={business.utilizationEntries}
             deleteAction={deleteSalesUtilizationEntry}
+            editBasePath="/sales/businesses"
+            isAdmin={isAdmin}
           />
         </div>
       </section>

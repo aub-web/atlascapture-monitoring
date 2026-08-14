@@ -19,6 +19,14 @@ export function getAllUtilizationEntries() {
   });
 }
 
+export function getCheckIn(id: string) {
+  return prisma.checkIn.findUnique({ where: { id } });
+}
+
+export function getUtilizationEntry(id: string) {
+  return prisma.utilizationEntry.findUnique({ where: { id } });
+}
+
 export function getBusinessWithCheckIns(id: string) {
   return prisma.business.findUnique({
     where: { id },

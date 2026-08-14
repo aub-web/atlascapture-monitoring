@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { deleteCheckIn } from "@/lib/actions/checkin-actions";
 import { formatDate } from "@/lib/date";
 import { deviceTypeLabel } from "@/lib/constants";
@@ -18,9 +19,11 @@ type CheckIn = {
 export default function CheckInHistory({
   businessId,
   checkIns,
+  isAdmin = false,
 }: {
   businessId: string;
   checkIns: CheckIn[];
+  isAdmin?: boolean;
 }) {
   if (checkIns.length === 0) {
     return (
@@ -56,15 +59,25 @@ export default function CheckInHistory({
                   {checkIn.stopTime} · {deviceTypeLabel(checkIn.deviceType)}
                 </p>
               </div>
-              <form action={deleteCheckIn}>
-                <input type="hidden" name="id" value={checkIn.id} />
-                <input type="hidden" name="businessId" value={businessId} />
-                <ConfirmSubmitButton
-                  label="Delete"
-                  confirmMessage="Delete this check-in?"
-                  className="text-xs font-medium text-red-500 hover:text-red-700"
-                />
-              </form>
+              <div className="flex shrink-0 items-center gap-3">
+                {isAdmin && (
+                  <Link
+                    href={`/businesses/${businessId}/checkins/${checkIn.id}/edit`}
+                    className="text-xs font-medium text-zinc-500 hover:text-zinc-900"
+                  >
+                    Edit
+                  </Link>
+                )}
+                <form action={deleteCheckIn}>
+                  <input type="hidden" name="id" value={checkIn.id} />
+                  <input type="hidden" name="businessId" value={businessId} />
+                  <ConfirmSubmitButton
+                    label="Delete"
+                    confirmMessage="Delete this check-in?"
+                    className="text-xs font-medium text-red-500 hover:text-red-700"
+                  />
+                </form>
+              </div>
             </div>
 
             {checkIn.whatWentWrong && (

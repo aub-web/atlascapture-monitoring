@@ -4,6 +4,7 @@ import { getBusinessWithCheckIns } from "@/lib/data";
 import { deleteBusiness } from "@/lib/actions/business-actions";
 import { categoryLabel, MONITORING_CADENCE_DAYS } from "@/lib/constants";
 import { averageHours } from "@/lib/hours";
+import { isAdminAuthenticated } from "@/lib/admin-auth";
 import {
   createUtilizationEntry,
   deleteUtilizationEntry,
@@ -21,7 +22,10 @@ export default async function BusinessDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const business = await getBusinessWithCheckIns(id);
+  const [business, isAdmin] = await Promise.all([
+    getBusinessWithCheckIns(id),
+    isAdminAuthenticated(),
+  ]);
 
   if (!business) {
     notFound();
@@ -49,14 +53,24 @@ export default async function BusinessDetailPage({
             {categoryLabel(business.category)} · {business.partnerAssociate}
           </p>
         </div>
-        <form action={deleteBusiness}>
-          <input type="hidden" name="id" value={business.id} />
-          <ConfirmSubmitButton
-            label="Delete business"
-            confirmMessage={`Delete ${business.name} and all of its check-ins?`}
-            className="shrink-0 text-xs font-medium text-red-500 hover:text-red-700"
-          />
-        </form>
+        <div className="flex shrink-0 items-center gap-3">
+          {isAdmin && (
+            <Link
+              href={`/businesses/${business.id}/edit`}
+              className="text-xs font-medium text-zinc-500 hover:text-zinc-900"
+            >
+              Edit
+            </Link>
+          )}
+          <form action={deleteBusiness}>
+            <input type="hidden" name="id" value={business.id} />
+            <ConfirmSubmitButton
+              label="Delete business"
+              confirmMessage={`Delete ${business.name} and all of its check-ins?`}
+              className="text-xs font-medium text-red-500 hover:text-red-700"
+            />
+          </form>
+        </div>
       </div>
 
       <section className="mt-8">
@@ -83,7 +97,11 @@ export default async function BusinessDetailPage({
           )}
         </div>
         <div className="mt-3">
-          <CheckInHistory businessId={business.id} checkIns={business.checkIns} />
+          <CheckInHistory
+            businessId={business.id}
+            checkIns={business.checkIns}
+            isAdmin={isAdmin}
+          />
         </div>
       </section>
 
@@ -117,6 +135,8 @@ export default async function BusinessDetailPage({
             businessId={business.id}
             entries={business.utilizationEntries}
             deleteAction={deleteUtilizationEntry}
+            editBasePath="/businesses"
+            isAdmin={isAdmin}
           />
         </div>
       </section>

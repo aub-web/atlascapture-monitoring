@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { formatDate } from "@/lib/date";
 import { deviceTypeLabel } from "@/lib/constants";
 import { utilizationHoursForEntry, utilizationPercent } from "@/lib/utilization";
@@ -19,10 +20,14 @@ export default function UtilizationHistory({
   businessId,
   entries,
   deleteAction,
+  editBasePath,
+  isAdmin = false,
 }: {
   businessId: string;
   entries: Entry[];
   deleteAction: (formData: FormData) => Promise<void>;
+  editBasePath: string;
+  isAdmin?: boolean;
 }) {
   if (entries.length === 0) {
     return (
@@ -56,15 +61,25 @@ export default function UtilizationHistory({
               {percent !== null && ` · ${percent}% utilized`}
             </p>
           </div>
-          <form action={deleteAction}>
-            <input type="hidden" name="id" value={entry.id} />
-            <input type="hidden" name="businessId" value={businessId} />
-            <ConfirmSubmitButton
-              label="Delete"
-              confirmMessage="Delete this utilization entry?"
-              className="text-xs font-medium text-red-500 hover:text-red-700"
-            />
-          </form>
+          <div className="flex shrink-0 items-center gap-3">
+            {isAdmin && (
+              <Link
+                href={`${editBasePath}/${businessId}/utilization/${entry.id}/edit`}
+                className="text-xs font-medium text-zinc-500 hover:text-zinc-900"
+              >
+                Edit
+              </Link>
+            )}
+            <form action={deleteAction}>
+              <input type="hidden" name="id" value={entry.id} />
+              <input type="hidden" name="businessId" value={businessId} />
+              <ConfirmSubmitButton
+                label="Delete"
+                confirmMessage="Delete this utilization entry?"
+                className="text-xs font-medium text-red-500 hover:text-red-700"
+              />
+            </form>
+          </div>
         </li>
         );
       })}

@@ -19,7 +19,7 @@ export default async function AdminHistoryPage() {
             Change History
           </h1>
           <p className="mt-1 text-sm text-zinc-500">
-            Every create/delete across Outbound and Sales Monitoring
+            Every create/edit/delete across Outbound and Sales Monitoring
           </p>
         </div>
         <LogoutButton />
@@ -41,10 +41,16 @@ export default async function AdminHistoryPage() {
                   className={
                     entry.action === "CREATE"
                       ? "mt-0.5 shrink-0 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700"
-                      : "mt-0.5 shrink-0 rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-700"
+                      : entry.action === "UPDATE"
+                        ? "mt-0.5 shrink-0 rounded-full bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700"
+                        : "mt-0.5 shrink-0 rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-700"
                   }
                 >
-                  {entry.action === "CREATE" ? "Created" : "Deleted"}
+                  {entry.action === "CREATE"
+                    ? "Created"
+                    : entry.action === "UPDATE"
+                      ? "Edited"
+                      : "Deleted"}
                 </span>
                 <div>
                   <p className="text-sm text-zinc-900">{entry.summary}</p>
