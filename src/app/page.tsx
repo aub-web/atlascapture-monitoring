@@ -4,6 +4,10 @@ import { BUSINESS_CATEGORIES, MONITORING_CADENCE_DAYS } from "@/lib/constants";
 import BusinessRow from "@/components/BusinessRow";
 import DailyUtilizationTracker from "@/components/DailyUtilizationTracker";
 
+// Always show live data — never freeze this dashboard as a static build-time
+// snapshot.
+export const dynamic = "force-dynamic";
+
 export default async function Home() {
   const businesses = await getBusinessesWithLatestCheckIn();
 

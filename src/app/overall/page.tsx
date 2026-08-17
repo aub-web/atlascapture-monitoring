@@ -6,6 +6,10 @@ import { getAllSalesUtilizationEntries } from "@/lib/sales-data";
 import CheckInSummaryTable from "@/components/CheckInSummaryTable";
 import SiteUtilizationOverview from "@/components/SiteUtilizationOverview";
 
+// Always show live data — never freeze this dashboard as a static build-time
+// snapshot.
+export const dynamic = "force-dynamic";
+
 export default async function OverallMonitoringPage() {
   const [businesses, outboundEntries, salesEntries] = await Promise.all([
     getBusinessesWithLatestCheckIn(),

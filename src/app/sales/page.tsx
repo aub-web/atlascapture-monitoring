@@ -3,6 +3,10 @@ import { getSalesBusinessesWithUtilization } from "@/lib/sales-data";
 import SalesBusinessRow from "@/components/SalesBusinessRow";
 import DailyUtilizationTracker from "@/components/DailyUtilizationTracker";
 
+// Always show live data — never freeze this dashboard as a static build-time
+// snapshot.
+export const dynamic = "force-dynamic";
+
 export default async function SalesMonitoringHome() {
   const businesses = await getSalesBusinessesWithUtilization();
 
