@@ -8,6 +8,10 @@ export function getBusinessesWithLatestCheckIn() {
         orderBy: { checkInDate: "desc" },
         take: 1,
       },
+      utilizationEntries: {
+        orderBy: { date: "desc" },
+        take: 1,
+      },
       _count: { select: { checkIns: true } },
     },
   });

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getBusinessesWithLatestCheckIn } from "@/lib/data";
 import { BUSINESS_CATEGORIES, MONITORING_CADENCE_DAYS } from "@/lib/constants";
 import BusinessRow from "@/components/BusinessRow";
+import DailyUtilizationTracker from "@/components/DailyUtilizationTracker";
 
 export default async function Home() {
   const businesses = await getBusinessesWithLatestCheckIn();
@@ -66,6 +67,25 @@ export default async function Home() {
             </section>
           );
         })}
+      </div>
+
+      <div className="mt-10">
+        <h2 className="text-sm font-semibold tracking-wide text-zinc-500 uppercase">
+          Daily Utilization Tracker
+        </h2>
+        <p className="mt-1 text-xs text-zinc-400">
+          Most recent day logged per business
+        </p>
+        <div className="mt-3">
+          <DailyUtilizationTracker
+            businesses={businesses.map((b) => ({
+              id: b.id,
+              name: b.name,
+              latestEntry: b.utilizationEntries[0] ?? null,
+            }))}
+            detailBasePath="/businesses"
+          />
+        </div>
       </div>
     </main>
   );

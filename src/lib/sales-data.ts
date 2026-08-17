@@ -4,7 +4,7 @@ export function getSalesBusinessesWithUtilization() {
   return prisma.salesBusiness.findMany({
     orderBy: { name: "asc" },
     include: {
-      utilizationEntries: true,
+      utilizationEntries: { orderBy: { date: "desc" } },
       _count: { select: { utilizationEntries: true } },
     },
   });

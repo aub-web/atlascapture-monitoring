@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getSalesBusinessesWithUtilization } from "@/lib/sales-data";
 import SalesBusinessRow from "@/components/SalesBusinessRow";
+import DailyUtilizationTracker from "@/components/DailyUtilizationTracker";
 
 export default async function SalesMonitoringHome() {
   const businesses = await getSalesBusinessesWithUtilization();
@@ -48,6 +49,25 @@ export default async function SalesMonitoringHome() {
             />
           ))
         )}
+      </div>
+
+      <div className="mt-10">
+        <h2 className="text-sm font-semibold tracking-wide text-zinc-500 uppercase">
+          Daily Utilization Tracker
+        </h2>
+        <p className="mt-1 text-xs text-zinc-400">
+          Most recent day logged per business
+        </p>
+        <div className="mt-3">
+          <DailyUtilizationTracker
+            businesses={businesses.map((b) => ({
+              id: b.id,
+              name: b.name,
+              latestEntry: b.utilizationEntries[0] ?? null,
+            }))}
+            detailBasePath="/sales/businesses"
+          />
+        </div>
       </div>
     </main>
   );
