@@ -42,6 +42,20 @@ function OverallIcon() {
   );
 }
 
+function StatusIcon() {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" className="h-5 w-5">
+      <path
+        d="M2.5 11l3-4.5 3 6 3-9 3 7.5 2.5-4"
+        stroke="currentColor"
+        strokeWidth={1.5}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 function SearchIcon() {
   return (
     <svg viewBox="0 0 20 20" fill="none" className="h-5 w-5">
@@ -87,19 +101,34 @@ const ITEMS: {
     label: "Outbound Monitoring",
     icon: OutboundIcon,
     match: (p) =>
-      p === "/" || p.startsWith("/businesses") || p.startsWith("/associates"),
+      (p === "/" ||
+        (p.startsWith("/businesses") && !p.startsWith("/businesses/status")) ||
+        p.startsWith("/associates")),
   },
   {
     href: "/sales",
     label: "Sales Monitoring",
     icon: SalesIcon,
-    match: (p) => p.startsWith("/sales"),
+    match: (p) =>
+      p.startsWith("/sales") && !p.startsWith("/sales/businesses/status"),
   },
   {
     href: "/overall",
     label: "Overall Monitoring",
     icon: OverallIcon,
     match: (p) => p.startsWith("/overall"),
+  },
+  {
+    href: "/businesses/status",
+    label: "Outbound Status",
+    icon: StatusIcon,
+    match: (p) => p.startsWith("/businesses/status"),
+  },
+  {
+    href: "/sales/businesses/status",
+    label: "Sales Status",
+    icon: StatusIcon,
+    match: (p) => p.startsWith("/sales/businesses/status"),
   },
   {
     href: "/search",
