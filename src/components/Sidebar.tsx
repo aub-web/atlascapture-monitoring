@@ -42,6 +42,20 @@ function OverallIcon() {
   );
 }
 
+function SearchIcon() {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" className="h-5 w-5">
+      <circle cx="8.5" cy="8.5" r="5.5" stroke="currentColor" strokeWidth={1.5} />
+      <path
+        d="M16.5 16.5l-4-4"
+        stroke="currentColor"
+        strokeWidth={1.5}
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
 function AdminIcon() {
   return (
     <svg viewBox="0 0 20 20" fill="none" className="h-5 w-5">
@@ -86,6 +100,12 @@ const ITEMS: {
     label: "Overall Monitoring",
     icon: OverallIcon,
     match: (p) => p.startsWith("/overall"),
+  },
+  {
+    href: "/search",
+    label: "Search",
+    icon: SearchIcon,
+    match: (p) => p.startsWith("/search"),
   },
   {
     href: "/admin/login",
