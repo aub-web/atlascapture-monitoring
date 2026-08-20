@@ -7,6 +7,7 @@ import {
   actionForGap,
 } from "@/lib/utilization";
 import ConfirmSubmitButton from "@/components/ConfirmSubmitButton";
+import RecordingStatusBadge from "@/components/RecordingStatusBadge";
 
 function formatDeviceCount(count: number): string {
   return count === 1 ? "1 device" : `${count} devices`;
@@ -23,6 +24,7 @@ type Entry = {
   deviceCount: number;
   recordedHours: number;
   remarks?: string | null;
+  recordingStatus: string;
 };
 
 export default function UtilizationHistory({
@@ -74,6 +76,7 @@ export default function UtilizationHistory({
               </p>
             </div>
             <div className="flex shrink-0 items-center gap-3">
+              <RecordingStatusBadge status={entry.recordingStatus} />
               <span
                 className={`rounded-full px-2 py-0.5 text-xs font-medium ${action.className}`}
               >

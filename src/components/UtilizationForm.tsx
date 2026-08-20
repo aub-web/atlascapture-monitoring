@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { DEVICE_TYPES } from "@/lib/constants";
+import { DEVICE_TYPES, RECORDING_STATUSES } from "@/lib/constants";
 import { todayDateInputValue, toDateInputValue } from "@/lib/date";
 import { hoursToDurationParts } from "@/lib/duration";
 
@@ -28,6 +28,7 @@ export default function UtilizationForm({
     deviceCount: number;
     recordedHours: number;
     remarks?: string | null;
+    recordingStatus?: string;
   };
   submitLabel?: string;
   pendingLabel?: string;
@@ -168,6 +169,28 @@ export default function UtilizationForm({
             />
           </div>
         </div>
+      </div>
+
+      <div>
+        <label
+          htmlFor="recordingStatus"
+          className="block text-sm font-medium text-zinc-700"
+        >
+          Recording status
+        </label>
+        <select
+          id="recordingStatus"
+          name="recordingStatus"
+          required
+          defaultValue={defaultValues?.recordingStatus ?? "ACTIVELY_RECORDING"}
+          className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-900"
+        >
+          {RECORDING_STATUSES.map((status) => (
+            <option key={status.value} value={status.value}>
+              {status.label}
+            </option>
+          ))}
+        </select>
       </div>
 
       {showRemarks && (

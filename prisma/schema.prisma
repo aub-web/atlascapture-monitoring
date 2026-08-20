@@ -76,10 +76,11 @@ model UtilizationEntry {
   businessId String
   business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
 
-  date          DateTime
-  deviceType    String
-  deviceCount   Int
-  recordedHours Float    @default(0)
+  date            DateTime
+  deviceType      String
+  deviceCount     Int
+  recordedHours   Float    @default(0)
+  recordingStatus String   @default("ACTIVELY_RECORDING")
 
   createdAt DateTime @default(now())
 
@@ -118,11 +119,12 @@ model SalesUtilizationEntry {
   businessId String
   business   SalesBusiness @relation(fields: [businessId], references: [id], onDelete: Cascade)
 
-  date          DateTime
-  deviceType    String
-  deviceCount   Int
-  recordedHours Float    @default(0)
-  remarks       String?
+  date            DateTime
+  deviceType      String
+  deviceCount     Int
+  recordedHours   Float    @default(0)
+  remarks         String?
+  recordingStatus String   @default("ACTIVELY_RECORDING")
 
   createdAt DateTime @default(now())
 

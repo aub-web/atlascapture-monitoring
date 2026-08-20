@@ -45,6 +45,7 @@ export default async function EditSalesUtilizationEntryPage({
             deviceCount: entry.deviceCount,
             recordedHours: entry.recordedHours,
             remarks: entry.remarks,
+            recordingStatus: entry.recordingStatus,
           }}
         />
       </div>

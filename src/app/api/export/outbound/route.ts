@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { categoryLabel, deviceTypeLabel, businessStatusLabel } from "@/lib/constants";
+import {
+  categoryLabel,
+  deviceTypeLabel,
+  businessStatusLabel,
+  recordingStatusLabel,
+} from "@/lib/constants";
 import { formatDate } from "@/lib/date";
 import { utilizationHoursForEntry, utilizationPercent } from "@/lib/utilization";
 import { toCsv } from "@/lib/csv";
@@ -22,6 +27,7 @@ export async function GET() {
     "Capacity Hours",
     "Recorded Hours",
     "Utilization %",
+    "Recording Status",
   ];
 
   const rows = businesses.flatMap((business) =>
@@ -42,6 +48,7 @@ export async function GET() {
         capacityHours,
         entry.recordedHours,
         percent === null ? "" : percent,
+        recordingStatusLabel(entry.recordingStatus),
       ];
     }),
   );

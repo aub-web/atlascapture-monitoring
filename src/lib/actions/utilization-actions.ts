@@ -3,7 +3,11 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { DEVICE_TYPES, deviceTypeLabel } from "@/lib/constants";
+import {
+  DEVICE_TYPES,
+  deviceTypeLabel,
+  RECORDING_STATUSES,
+} from "@/lib/constants";
 import { formatDate } from "@/lib/date";
 import { utilizationHoursForEntry } from "@/lib/utilization";
 import { parseDurationFormData } from "@/lib/duration";
@@ -42,9 +46,20 @@ export async function createUtilizationEntry(
   if (recordedHours === null) {
     return { error: "Enter a valid recorded duration (hours, minutes 0-59, seconds 0-59)." };
   }
+  const recordingStatus = String(formData.get("recordingStatus") ?? "");
+  if (!RECORDING_STATUSES.some((s) => s.value === recordingStatus)) {
+    return { error: "Choose a valid recording status." };
+  }
 
   const entry = await prisma.utilizationEntry.create({
-    data: { businessId, date, deviceType, deviceCount, recordedHours },
+    data: {
+      businessId,
+      date,
+      deviceType,
+      deviceCount,
+      recordedHours,
+      recordingStatus,
+    },
     include: { business: { select: { name: true } } },
   });
 
@@ -93,10 +108,20 @@ export async function updateUtilizationEntry(
   if (recordedHours === null) {
     return { error: "Enter a valid recorded duration (hours, minutes 0-59, seconds 0-59)." };
   }
+  const recordingStatus = String(formData.get("recordingStatus") ?? "");
+  if (!RECORDING_STATUSES.some((s) => s.value === recordingStatus)) {
+    return { error: "Choose a valid recording status." };
+  }
 
   const entry = await prisma.utilizationEntry.update({
     where: { id },
-    data: { date, deviceType, deviceCount, recordedHours },
+    data: {
+      date,
+      deviceType,
+      deviceCount,
+      recordedHours,
+      recordingStatus,
+    },
     include: { business: { select: { name: true } } },
   });
 

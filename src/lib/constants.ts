@@ -36,3 +36,17 @@ export function businessStatusLabel(value: string): string {
   return BUSINESS_STATUSES.find((s) => s.value === value)?.label ?? value;
 }
 
+export const RECORDING_STATUSES = [
+  { value: "ACTIVELY_RECORDING", label: "Actively recording" },
+  { value: "PAUSED", label: "Paused" },
+  { value: "DONE_RECORDING", label: "Done recording" },
+  { value: "CANCELLED_BY_OWNER", label: "Cancelled by the owner" },
+  { value: "PULLOUT", label: "Pullout" },
+] as const;
+
+export type RecordingStatus = (typeof RECORDING_STATUSES)[number]["value"];
+
+export function recordingStatusLabel(value: string): string {
+  return RECORDING_STATUSES.find((s) => s.value === value)?.label ?? value;
+}
+
