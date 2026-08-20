@@ -10,7 +10,17 @@ datasource db {
   provider = "postgresql"
 }
 
-// category/associate are plain strings validated against the fixed lists in
+// The roster of Outbound partner associates — see
+// src/lib/actions/partner-associate-actions.ts. Business.partnerAssociate
+// stores the name as a plain string rather than a foreign key, so removing
+// an associate here never breaks a business record that already used it.
+model PartnerAssociate {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+}
+
+// category is a plain string validated against the fixed list in
 // src/lib/constants.ts.
 model Business {
   id               String   @id @default(cuid())

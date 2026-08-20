@@ -23,6 +23,10 @@ export function getAllUtilizationEntries() {
   });
 }
 
+export function getPartnerAssociates() {
+  return prisma.partnerAssociate.findMany({ orderBy: { name: "asc" } });
+}
+
 export function getCheckIn(id: string) {
   return prisma.checkIn.findUnique({ where: { id } });
 }

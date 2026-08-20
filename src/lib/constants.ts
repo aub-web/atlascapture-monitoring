@@ -1,13 +1,3 @@
-export const PARTNER_ASSOCIATES = [
-  "Aubrey Tutor",
-  "Keeby Binas",
-  "Verly Reyes",
-  "Joaquin Tuason",
-  "Dan Palma",
-] as const;
-
-export type PartnerAssociate = (typeof PARTNER_ASSOCIATES)[number];
-
 export const BUSINESS_CATEGORIES = [
   { value: "DIRECT_BUSINESS", label: "Direct Business" },
   { value: "ENTERPRISE", label: "Enterprise" },

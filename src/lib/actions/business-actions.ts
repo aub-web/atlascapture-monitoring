@@ -3,9 +3,15 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { BUSINESS_CATEGORIES, PARTNER_ASSOCIATES, categoryLabel } from "@/lib/constants";
+import { BUSINESS_CATEGORIES, categoryLabel } from "@/lib/constants";
 import { logAudit } from "@/lib/audit";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
+
+async function isValidPartnerAssociate(name: string): Promise<boolean> {
+  if (!name) return false;
+  const match = await prisma.partnerAssociate.findUnique({ where: { name } });
+  return match !== null;
+}
 
 export type CreateBusinessState = { error: string } | null;
 
@@ -23,7 +29,7 @@ export async function createBusiness(
   if (!BUSINESS_CATEGORIES.some((c) => c.value === category)) {
     return { error: "Choose a valid category." };
   }
-  if (!PARTNER_ASSOCIATES.includes(partnerAssociate as (typeof PARTNER_ASSOCIATES)[number])) {
+  if (!(await isValidPartnerAssociate(partnerAssociate))) {
     return { error: "Choose a valid partner associate." };
   }
 
@@ -63,7 +69,7 @@ export async function updateBusiness(
   if (!BUSINESS_CATEGORIES.some((c) => c.value === category)) {
     return { error: "Choose a valid category." };
   }
-  if (!PARTNER_ASSOCIATES.includes(partnerAssociate as (typeof PARTNER_ASSOCIATES)[number])) {
+  if (!(await isValidPartnerAssociate(partnerAssociate))) {
     return { error: "Choose a valid partner associate." };
   }
 

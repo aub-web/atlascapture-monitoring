@@ -6,14 +6,16 @@ import {
   updateBusiness,
   type UpdateBusinessState,
 } from "@/lib/actions/business-actions";
-import { BUSINESS_CATEGORIES, PARTNER_ASSOCIATES } from "@/lib/constants";
+import { BUSINESS_CATEGORIES } from "@/lib/constants";
 
 export default function EditBusinessForm({
   id,
   defaultValues,
+  associates,
 }: {
   id: string;
   defaultValues: { name: string; category: string; partnerAssociate: string };
+  associates: string[];
 }) {
   const [state, formAction, isPending] = useActionState<
     UpdateBusinessState,
@@ -65,12 +67,20 @@ export default function EditBusinessForm({
       </div>
 
       <div>
-        <label
-          htmlFor="partnerAssociate"
-          className="block text-sm font-medium text-zinc-700"
-        >
-          Partner associate
-        </label>
+        <div className="flex items-baseline justify-between">
+          <label
+            htmlFor="partnerAssociate"
+            className="block text-sm font-medium text-zinc-700"
+          >
+            Partner associate
+          </label>
+          <Link
+            href="/associates"
+            className="text-xs font-medium text-zinc-500 hover:text-zinc-900"
+          >
+            + Add new
+          </Link>
+        </div>
         <select
           id="partnerAssociate"
           name="partnerAssociate"
@@ -79,11 +89,13 @@ export default function EditBusinessForm({
           className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-900"
         >
           <option value="">Select partner associate</option>
-          {PARTNER_ASSOCIATES.map((associate) => (
-            <option key={associate} value={associate}>
-              {associate}
-            </option>
-          ))}
+          {Array.from(new Set([defaultValues.partnerAssociate, ...associates]))
+            .filter(Boolean)
+            .map((associate) => (
+              <option key={associate} value={associate}>
+                {associate}
+              </option>
+            ))}
         </select>
       </div>
 

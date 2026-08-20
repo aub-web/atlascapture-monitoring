@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { getBusinessWithCheckIns } from "@/lib/data";
+import { getBusinessWithCheckIns, getPartnerAssociates } from "@/lib/data";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
 import EditBusinessForm from "@/components/EditBusinessForm";
 
@@ -14,7 +14,10 @@ export default async function EditBusinessPage({
   }
 
   const { id } = await params;
-  const business = await getBusinessWithCheckIns(id);
+  const [business, associates] = await Promise.all([
+    getBusinessWithCheckIns(id),
+    getPartnerAssociates(),
+  ]);
 
   if (!business) {
     notFound();
@@ -38,6 +41,7 @@ export default async function EditBusinessPage({
           category: business.category,
           partnerAssociate: business.partnerAssociate,
         }}
+        associates={associates.map((a) => a.name)}
       />
     </main>
   );

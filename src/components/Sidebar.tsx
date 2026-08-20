@@ -72,7 +72,8 @@ const ITEMS: {
     href: "/",
     label: "Outbound Monitoring",
     icon: OutboundIcon,
-    match: (p) => p === "/" || p.startsWith("/businesses"),
+    match: (p) =>
+      p === "/" || p.startsWith("/businesses") || p.startsWith("/associates"),
   },
   {
     href: "/sales",
