@@ -20,6 +20,7 @@ export async function GET() {
     "Capacity Hours",
     "Recorded Hours",
     "Utilization %",
+    "Remarks",
   ];
 
   const rows = businesses.flatMap((business) =>
@@ -38,6 +39,7 @@ export async function GET() {
         capacityHours,
         entry.recordedHours,
         percent === null ? "" : percent,
+        entry.remarks ?? "",
       ];
     }),
   );

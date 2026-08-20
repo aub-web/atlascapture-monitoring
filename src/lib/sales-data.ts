@@ -16,6 +16,10 @@ export function getAllSalesUtilizationEntries() {
   });
 }
 
+export function getSalesAgents() {
+  return prisma.salesAgent.findMany({ orderBy: { name: "asc" } });
+}
+
 export function getSalesUtilizationEntry(id: string) {
   return prisma.salesUtilizationEntry.findUnique({ where: { id } });
 }

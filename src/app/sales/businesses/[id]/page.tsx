@@ -68,6 +68,7 @@ export default async function SalesBusinessDetailPage({
           <UtilizationForm
             businessId={business.id}
             action={createSalesUtilizationEntry}
+            showRemarks
           />
         </div>
       </section>

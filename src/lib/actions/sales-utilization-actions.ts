@@ -10,6 +10,11 @@ import { parseDurationFormData } from "@/lib/duration";
 import { logAudit } from "@/lib/audit";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
 
+function optionalText(value: FormDataEntryValue | null): string | null {
+  const trimmed = String(value ?? "").trim();
+  return trimmed === "" ? null : trimmed;
+}
+
 export type CreateSalesUtilizationState = { error: string } | null;
 
 export async function createSalesUtilizationEntry(
@@ -44,7 +49,14 @@ export async function createSalesUtilizationEntry(
   }
 
   const entry = await prisma.salesUtilizationEntry.create({
-    data: { businessId, date, deviceType, deviceCount, recordedHours },
+    data: {
+      businessId,
+      date,
+      deviceType,
+      deviceCount,
+      recordedHours,
+      remarks: optionalText(formData.get("remarks")),
+    },
     include: { business: { select: { name: true } } },
   });
 
@@ -96,7 +108,13 @@ export async function updateSalesUtilizationEntry(
 
   const entry = await prisma.salesUtilizationEntry.update({
     where: { id },
-    data: { date, deviceType, deviceCount, recordedHours },
+    data: {
+      date,
+      deviceType,
+      deviceCount,
+      recordedHours,
+      remarks: optionalText(formData.get("remarks")),
+    },
     include: { business: { select: { name: true } } },
   });
 

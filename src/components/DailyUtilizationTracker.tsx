@@ -1,5 +1,9 @@
 import Link from "next/link";
-import { HOURS_PER_DEVICE, utilizationHoursForEntry } from "@/lib/utilization";
+import {
+  HOURS_PER_DEVICE,
+  utilizationHoursForEntry,
+  actionForGap,
+} from "@/lib/utilization";
 import { deviceTypeLabel } from "@/lib/constants";
 import { formatDate } from "@/lib/date";
 
@@ -18,16 +22,6 @@ type Business = {
 
 function round2(value: number): number {
   return Math.round(value * 100) / 100;
-}
-
-function actionFor(gap: number): { label: string; className: string } {
-  if (gap >= 0) {
-    return { label: "Good", className: "bg-emerald-50 text-emerald-700" };
-  }
-  if (gap >= -3) {
-    return { label: "Warning", className: "bg-amber-50 text-amber-700" };
-  }
-  return { label: "Support visit", className: "bg-red-50 text-red-700" };
 }
 
 export default function DailyUtilizationTracker({
@@ -95,7 +89,7 @@ export default function DailyUtilizationTracker({
               entry.deviceCount,
             );
             const gap = round2(entry.recordedHours - capacityHours);
-            const action = actionFor(gap);
+            const action = actionForGap(gap);
 
             return (
               <tr

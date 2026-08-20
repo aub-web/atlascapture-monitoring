@@ -84,6 +84,16 @@ model UtilizationEntry {
   @@index([date])
 }
 
+// The roster of Sales agents — see src/lib/actions/sales-agent-actions.ts.
+// SalesBusiness.salesAgent stores the name as a plain string rather than a
+// foreign key, so removing an agent here never breaks a business record
+// that already used it.
+model SalesAgent {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+}
+
 // Sales Monitoring is a separate tracking area from Outbound Monitoring —
 // its own businesses, agents, and utilization entries.
 model SalesBusiness {
@@ -106,6 +116,7 @@ model SalesUtilizationEntry {
   deviceType    String
   deviceCount   Int
   recordedHours Float    @default(0)
+  remarks       String?
 
   createdAt DateTime @default(now())
 

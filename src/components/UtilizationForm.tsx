@@ -14,6 +14,7 @@ export default function UtilizationForm({
   defaultValues,
   submitLabel = "Log Utilization",
   pendingLabel = "Saving…",
+  showRemarks = false,
 }: {
   businessId: string;
   action: (
@@ -26,9 +27,11 @@ export default function UtilizationForm({
     deviceType: string;
     deviceCount: number;
     recordedHours: number;
+    remarks?: string | null;
   };
   submitLabel?: string;
   pendingLabel?: string;
+  showRemarks?: boolean;
 }) {
   const [state, formAction, isPending] = useActionState<
     UtilizationActionState,
@@ -166,6 +169,24 @@ export default function UtilizationForm({
           </div>
         </div>
       </div>
+
+      {showRemarks && (
+        <div>
+          <label
+            htmlFor="remarks"
+            className="block text-sm font-medium text-zinc-700"
+          >
+            Remarks
+          </label>
+          <textarea
+            id="remarks"
+            name="remarks"
+            rows={2}
+            defaultValue={defaultValues?.remarks ?? ""}
+            className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-900"
+          />
+        </div>
+      )}
 
       {state?.error && (
         <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">

@@ -6,14 +6,15 @@ import {
   updateSalesBusiness,
   type UpdateSalesBusinessState,
 } from "@/lib/actions/sales-business-actions";
-import { SALES_AGENTS } from "@/lib/constants";
 
 export default function EditSalesBusinessForm({
   id,
   defaultValues,
+  agents,
 }: {
   id: string;
   defaultValues: { name: string; salesAgent: string };
+  agents: string[];
 }) {
   const [state, formAction, isPending] = useActionState<
     UpdateSalesBusinessState,
@@ -42,12 +43,20 @@ export default function EditSalesBusinessForm({
       </div>
 
       <div>
-        <label
-          htmlFor="salesAgent"
-          className="block text-sm font-medium text-zinc-700"
-        >
-          Sales agent
-        </label>
+        <div className="flex items-baseline justify-between">
+          <label
+            htmlFor="salesAgent"
+            className="block text-sm font-medium text-zinc-700"
+          >
+            Sales agent
+          </label>
+          <Link
+            href="/sales/agents"
+            className="text-xs font-medium text-zinc-500 hover:text-zinc-900"
+          >
+            + Add new
+          </Link>
+        </div>
         <select
           id="salesAgent"
           name="salesAgent"
@@ -56,11 +65,13 @@ export default function EditSalesBusinessForm({
           className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-900"
         >
           <option value="">Select sales agent</option>
-          {SALES_AGENTS.map((agent) => (
-            <option key={agent} value={agent}>
-              {agent}
-            </option>
-          ))}
+          {Array.from(new Set([defaultValues.salesAgent, ...agents]))
+            .filter(Boolean)
+            .map((agent) => (
+              <option key={agent} value={agent}>
+                {agent}
+              </option>
+            ))}
         </select>
       </div>
 

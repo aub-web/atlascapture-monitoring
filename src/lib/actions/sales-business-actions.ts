@@ -3,9 +3,14 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { SALES_AGENTS } from "@/lib/constants";
 import { logAudit } from "@/lib/audit";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
+
+async function isValidSalesAgent(name: string): Promise<boolean> {
+  if (!name) return false;
+  const match = await prisma.salesAgent.findUnique({ where: { name } });
+  return match !== null;
+}
 
 export type CreateSalesBusinessState = { error: string } | null;
 
@@ -19,7 +24,7 @@ export async function createSalesBusiness(
   if (!name) {
     return { error: "Business name is required." };
   }
-  if (!SALES_AGENTS.includes(salesAgent as (typeof SALES_AGENTS)[number])) {
+  if (!(await isValidSalesAgent(salesAgent))) {
     return { error: "Choose a valid sales agent." };
   }
 
@@ -55,7 +60,7 @@ export async function updateSalesBusiness(
   if (!name) {
     return { error: "Business name is required." };
   }
-  if (!SALES_AGENTS.includes(salesAgent as (typeof SALES_AGENTS)[number])) {
+  if (!(await isValidSalesAgent(salesAgent))) {
     return { error: "Choose a valid sales agent." };
   }
 

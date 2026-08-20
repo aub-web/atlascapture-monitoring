@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { getSalesBusinessWithUtilization } from "@/lib/sales-data";
+import { getSalesBusinessWithUtilization, getSalesAgents } from "@/lib/sales-data";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
 import EditSalesBusinessForm from "@/components/EditSalesBusinessForm";
 
@@ -14,7 +14,10 @@ export default async function EditSalesBusinessPage({
   }
 
   const { id } = await params;
-  const business = await getSalesBusinessWithUtilization(id);
+  const [business, agents] = await Promise.all([
+    getSalesBusinessWithUtilization(id),
+    getSalesAgents(),
+  ]);
 
   if (!business) {
     notFound();
@@ -34,6 +37,7 @@ export default async function EditSalesBusinessPage({
       <EditSalesBusinessForm
         id={business.id}
         defaultValues={{ name: business.name, salesAgent: business.salesAgent }}
+        agents={agents.map((a) => a.name)}
       />
     </main>
   );

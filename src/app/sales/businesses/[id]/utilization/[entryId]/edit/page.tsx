@@ -38,11 +38,13 @@ export default async function EditSalesUtilizationEntryPage({
           action={updateSalesUtilizationEntry}
           entryId={entry.id}
           submitLabel="Save Changes"
+          showRemarks
           defaultValues={{
             date: entry.date,
             deviceType: entry.deviceType,
             deviceCount: entry.deviceCount,
             recordedHours: entry.recordedHours,
+            remarks: entry.remarks,
           }}
         />
       </div>

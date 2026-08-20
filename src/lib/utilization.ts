@@ -26,6 +26,24 @@ export function utilizationPercent(
   return round1((recordedHours / capacityHours) * 100);
 }
 
+export type UtilizationAction = {
+  label: string;
+  className: string;
+};
+
+// Gap = actual recorded hours minus capacity (devices * target hrs/device).
+// >= 0h: on or above target. -3h to 0h: mildly behind. Below -3h: needs a
+// support visit.
+export function actionForGap(gap: number): UtilizationAction {
+  if (gap >= 0) {
+    return { label: "Good", className: "bg-emerald-50 text-emerald-700" };
+  }
+  if (gap >= -3) {
+    return { label: "Warning", className: "bg-amber-50 text-amber-700" };
+  }
+  return { label: "Support visit", className: "bg-red-50 text-red-700" };
+}
+
 export type UtilizationPeriod = "daily" | "weekly" | "monthly";
 
 export type UtilizationEntryLike = {

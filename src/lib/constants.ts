@@ -25,14 +25,3 @@ export function deviceTypeLabel(value: string): string {
   return DEVICE_TYPES.find((d) => d.value === value)?.label ?? value;
 }
 
-export const SALES_AGENTS = [
-  "Vince Andrei Flores",
-  "Allan Bamba",
-  "Tristan Shayne Navidad",
-  "John Carlo Bernardino",
-  "James Clark Lumasac",
-  "Geramaica Dela Cruz",
-  "Jeremiah Crisostomo",
-] as const;
-
-export type SalesAgent = (typeof SALES_AGENTS)[number];

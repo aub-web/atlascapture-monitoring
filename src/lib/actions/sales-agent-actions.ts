@@ -6,12 +6,12 @@ import { Prisma } from "@/generated/prisma/client";
 import { logAudit } from "@/lib/audit";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
 
-export type CreatePartnerAssociateState = { error: string } | null;
+export type CreateSalesAgentState = { error: string } | null;
 
-export async function createPartnerAssociate(
-  _prevState: CreatePartnerAssociateState,
+export async function createSalesAgent(
+  _prevState: CreateSalesAgentState,
   formData: FormData,
-): Promise<CreatePartnerAssociateState> {
+): Promise<CreateSalesAgentState> {
   if (!(await isAdminAuthenticated())) {
     return { error: "Admin access required." };
   }
@@ -22,27 +22,22 @@ export async function createPartnerAssociate(
     return { error: "Name is required." };
   }
 
-  let associate;
+  let agent;
   try {
-    associate = await prisma.partnerAssociate.create({ data: { name } });
+    agent = await prisma.salesAgent.create({ data: { name } });
   } catch (err) {
     if (
       err instanceof Prisma.PrismaClientKnownRequestError &&
       err.code === "P2002"
     ) {
-      return { error: "That partner associate already exists." };
+      return { error: "That sales agent already exists." };
     }
     throw err;
   }
 
-  await logAudit(
-    "CREATE",
-    "PartnerAssociate",
-    associate.id,
-    `Added partner associate "${associate.name}"`,
-  );
+  await logAudit("CREATE", "SalesAgent", agent.id, `Added sales agent "${agent.name}"`);
 
-  revalidatePath("/associates");
-  revalidatePath("/businesses/new");
+  revalidatePath("/sales/agents");
+  revalidatePath("/sales/businesses/new");
   return null;
 }
