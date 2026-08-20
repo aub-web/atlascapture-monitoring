@@ -4,16 +4,19 @@ import {
   utilizationPercent,
   type UtilizationEntryLike,
 } from "@/lib/utilization";
+import BusinessStatusBadge from "@/components/BusinessStatusBadge";
 
 export default function SalesBusinessRow({
   id,
   name,
   salesAgent,
+  status,
   utilizationEntries,
 }: {
   id: string;
   name: string;
   salesAgent: string;
+  status: string;
   utilizationEntries: UtilizationEntryLike[];
 }) {
   const totals = totalUtilization(utilizationEntries);
@@ -25,7 +28,10 @@ export default function SalesBusinessRow({
       className="flex flex-col gap-2 rounded-lg border border-zinc-200 bg-white px-4 py-3 hover:border-zinc-300 hover:shadow-sm sm:flex-row sm:items-center sm:justify-between"
     >
       <div>
-        <p className="font-medium text-zinc-900">{name}</p>
+        <div className="flex items-center gap-2">
+          <p className="font-medium text-zinc-900">{name}</p>
+          <BusinessStatusBadge status={status} />
+        </div>
         <p className="text-sm text-zinc-500">{salesAgent}</p>
       </div>
 

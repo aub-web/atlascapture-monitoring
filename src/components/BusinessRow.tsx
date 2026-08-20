@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { formatDate } from "@/lib/date";
+import BusinessStatusBadge from "@/components/BusinessStatusBadge";
 
 type CheckIn = {
   checkInDate: Date;
@@ -12,12 +13,14 @@ export default function BusinessRow({
   id,
   name,
   partnerAssociate,
+  status,
   latestCheckIn,
   checkInCount,
 }: {
   id: string;
   name: string;
   partnerAssociate: string;
+  status: string;
   latestCheckIn: CheckIn | null;
   checkInCount: number;
 }) {
@@ -31,7 +34,10 @@ export default function BusinessRow({
       className="flex flex-col gap-2 rounded-lg border border-zinc-200 bg-white px-4 py-3 hover:border-zinc-300 hover:shadow-sm sm:flex-row sm:items-center sm:justify-between"
     >
       <div>
-        <p className="font-medium text-zinc-900">{name}</p>
+        <div className="flex items-center gap-2">
+          <p className="font-medium text-zinc-900">{name}</p>
+          <BusinessStatusBadge status={status} />
+        </div>
         <p className="text-sm text-zinc-500">{partnerAssociate}</p>
       </div>
 

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getBusinessWithCheckIns } from "@/lib/data";
-import { deleteBusiness } from "@/lib/actions/business-actions";
+import { deleteBusiness, updateBusinessStatus } from "@/lib/actions/business-actions";
 import { categoryLabel, MONITORING_CADENCE_DAYS } from "@/lib/constants";
 import { averageHours } from "@/lib/hours";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
@@ -15,6 +15,8 @@ import ConfirmSubmitButton from "@/components/ConfirmSubmitButton";
 import UtilizationForm from "@/components/UtilizationForm";
 import UtilizationHistory from "@/components/UtilizationHistory";
 import UtilizationSummary from "@/components/UtilizationSummary";
+import BusinessStatusBadge from "@/components/BusinessStatusBadge";
+import StatusToggleForm from "@/components/StatusToggleForm";
 
 export default async function BusinessDetailPage({
   params,
@@ -46,14 +48,22 @@ export default async function BusinessDetailPage({
 
       <div className="mt-2 flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold text-zinc-900">
-            {business.name}
-          </h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl font-semibold text-zinc-900">
+              {business.name}
+            </h1>
+            <BusinessStatusBadge status={business.status} />
+          </div>
           <p className="mt-1 text-sm text-zinc-500">
             {categoryLabel(business.category)} · {business.partnerAssociate}
           </p>
         </div>
         <div className="flex shrink-0 items-center gap-3">
+          <StatusToggleForm
+            id={business.id}
+            status={business.status}
+            action={updateBusinessStatus}
+          />
           {isAdmin && (
             <Link
               href={`/businesses/${business.id}/edit`}

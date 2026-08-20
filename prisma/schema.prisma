@@ -27,6 +27,8 @@ model Business {
   name             String
   category         String
   partnerAssociate String
+  // "ACTIVE" | "INACTIVE" — see src/lib/constants.ts.
+  status           String   @default("ACTIVE")
   createdAt        DateTime @default(now())
 
   checkIns           CheckIn[]
@@ -34,6 +36,7 @@ model Business {
 
   @@index([category])
   @@index([partnerAssociate])
+  @@index([status])
 }
 
 model CheckIn {
@@ -100,11 +103,14 @@ model SalesBusiness {
   id         String   @id @default(cuid())
   name       String
   salesAgent String
+  // "ACTIVE" | "INACTIVE" — see src/lib/constants.ts.
+  status     String   @default("ACTIVE")
   createdAt  DateTime @default(now())
 
   utilizationEntries SalesUtilizationEntry[]
 
   @@index([salesAgent])
+  @@index([status])
 }
 
 model SalesUtilizationEntry {

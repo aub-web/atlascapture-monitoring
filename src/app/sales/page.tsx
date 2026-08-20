@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getSalesBusinessesWithUtilization } from "@/lib/sales-data";
 import SalesBusinessRow from "@/components/SalesBusinessRow";
 import DailyUtilizationTracker from "@/components/DailyUtilizationTracker";
+import BusinessStatusSection from "@/components/BusinessStatusSection";
 
 // Always show live data — never freeze this dashboard as a static build-time
 // snapshot.
@@ -55,10 +56,28 @@ export default async function SalesMonitoringHome() {
               id={business.id}
               name={business.name}
               salesAgent={business.salesAgent}
+              status={business.status}
               utilizationEntries={business.utilizationEntries}
             />
           ))
         )}
+      </div>
+
+      <div className="mt-10">
+        <h2 className="text-sm font-semibold tracking-wide text-zinc-500 uppercase">
+          Business Status
+        </h2>
+        <div className="mt-3">
+          <BusinessStatusSection
+            businesses={businesses.map((b) => ({
+              id: b.id,
+              name: b.name,
+              status: b.status,
+              subtitle: b.salesAgent,
+            }))}
+            detailBasePath="/sales/businesses"
+          />
+        </div>
       </div>
 
       <div className="mt-10">

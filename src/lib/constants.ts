@@ -25,3 +25,14 @@ export function deviceTypeLabel(value: string): string {
   return DEVICE_TYPES.find((d) => d.value === value)?.label ?? value;
 }
 
+export const BUSINESS_STATUSES = [
+  { value: "ACTIVE", label: "Active" },
+  { value: "INACTIVE", label: "Inactive" },
+] as const;
+
+export type BusinessStatus = (typeof BUSINESS_STATUSES)[number]["value"];
+
+export function businessStatusLabel(value: string): string {
+  return BUSINESS_STATUSES.find((s) => s.value === value)?.label ?? value;
+}
+

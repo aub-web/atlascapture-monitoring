@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { logAudit } from "@/lib/audit";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
+import { BUSINESS_STATUSES, businessStatusLabel } from "@/lib/constants";
 
 async function isValidSalesAgent(name: string): Promise<boolean> {
   if (!name) return false;
@@ -74,6 +75,33 @@ export async function updateSalesBusiness(
     "SalesBusiness",
     business.id,
     `Edited sales business "${business.name}" (${salesAgent})`,
+  );
+
+  revalidatePath("/sales");
+  revalidatePath(`/sales/businesses/${id}`);
+  redirect(`/sales/businesses/${id}`);
+}
+
+export async function updateSalesBusinessStatus(
+  formData: FormData,
+): Promise<void> {
+  const id = String(formData.get("id") ?? "");
+  const status = String(formData.get("status") ?? "");
+
+  if (!BUSINESS_STATUSES.some((s) => s.value === status)) {
+    throw new Error("Invalid status.");
+  }
+
+  const business = await prisma.salesBusiness.update({
+    where: { id },
+    data: { status },
+  });
+
+  await logAudit(
+    "UPDATE",
+    "SalesBusiness",
+    business.id,
+    `Marked sales business "${business.name}" as ${businessStatusLabel(status)}`,
   );
 
   revalidatePath("/sales");

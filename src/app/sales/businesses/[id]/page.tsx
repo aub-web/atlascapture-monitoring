@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getSalesBusinessWithUtilization } from "@/lib/sales-data";
-import { deleteSalesBusiness } from "@/lib/actions/sales-business-actions";
+import {
+  deleteSalesBusiness,
+  updateSalesBusinessStatus,
+} from "@/lib/actions/sales-business-actions";
 import {
   createSalesUtilizationEntry,
   deleteSalesUtilizationEntry,
@@ -11,6 +14,8 @@ import UtilizationForm from "@/components/UtilizationForm";
 import UtilizationHistory from "@/components/UtilizationHistory";
 import UtilizationSummary from "@/components/UtilizationSummary";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
+import BusinessStatusBadge from "@/components/BusinessStatusBadge";
+import StatusToggleForm from "@/components/StatusToggleForm";
 
 export default async function SalesBusinessDetailPage({
   params,
@@ -35,12 +40,20 @@ export default async function SalesBusinessDetailPage({
 
       <div className="mt-2 flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold text-zinc-900">
-            {business.name}
-          </h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl font-semibold text-zinc-900">
+              {business.name}
+            </h1>
+            <BusinessStatusBadge status={business.status} />
+          </div>
           <p className="mt-1 text-sm text-zinc-500">{business.salesAgent}</p>
         </div>
         <div className="flex shrink-0 items-center gap-3">
+          <StatusToggleForm
+            id={business.id}
+            status={business.status}
+            action={updateSalesBusinessStatus}
+          />
           {isAdmin && (
             <Link
               href={`/sales/businesses/${business.id}/edit`}

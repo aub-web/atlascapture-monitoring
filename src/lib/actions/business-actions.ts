@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { BUSINESS_CATEGORIES, categoryLabel } from "@/lib/constants";
+import { BUSINESS_CATEGORIES, BUSINESS_STATUSES, categoryLabel, businessStatusLabel } from "@/lib/constants";
 import { logAudit } from "@/lib/audit";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
 
@@ -83,6 +83,31 @@ export async function updateBusiness(
     "Business",
     business.id,
     `Edited business "${business.name}" (${categoryLabel(category)}, ${partnerAssociate})`,
+  );
+
+  revalidatePath("/");
+  revalidatePath(`/businesses/${id}`);
+  redirect(`/businesses/${id}`);
+}
+
+export async function updateBusinessStatus(formData: FormData): Promise<void> {
+  const id = String(formData.get("id") ?? "");
+  const status = String(formData.get("status") ?? "");
+
+  if (!BUSINESS_STATUSES.some((s) => s.value === status)) {
+    throw new Error("Invalid status.");
+  }
+
+  const business = await prisma.business.update({
+    where: { id },
+    data: { status },
+  });
+
+  await logAudit(
+    "UPDATE",
+    "Business",
+    business.id,
+    `Marked business "${business.name}" as ${businessStatusLabel(status)}`,
   );
 
   revalidatePath("/");

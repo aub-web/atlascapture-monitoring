@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { deviceTypeLabel } from "@/lib/constants";
+import { deviceTypeLabel, businessStatusLabel } from "@/lib/constants";
 import { formatDate } from "@/lib/date";
 import { utilizationHoursForEntry, utilizationPercent } from "@/lib/utilization";
 import { toCsv } from "@/lib/csv";
@@ -13,6 +13,7 @@ export async function GET() {
 
   const header = [
     "Business",
+    "Status",
     "Sales Agent",
     "Date",
     "Device Type",
@@ -32,6 +33,7 @@ export async function GET() {
       const percent = utilizationPercent(entry.recordedHours, capacityHours);
       return [
         business.name,
+        businessStatusLabel(business.status),
         business.salesAgent,
         formatDate(entry.date),
         deviceTypeLabel(entry.deviceType),

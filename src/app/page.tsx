@@ -3,6 +3,8 @@ import { getBusinessesWithLatestCheckIn } from "@/lib/data";
 import { BUSINESS_CATEGORIES, MONITORING_CADENCE_DAYS } from "@/lib/constants";
 import BusinessRow from "@/components/BusinessRow";
 import DailyUtilizationTracker from "@/components/DailyUtilizationTracker";
+import BusinessStatusSection from "@/components/BusinessStatusSection";
+import { categoryLabel } from "@/lib/constants";
 
 // Always show live data — never freeze this dashboard as a static build-time
 // snapshot.
@@ -68,6 +70,7 @@ export default async function Home() {
                       id={business.id}
                       name={business.name}
                       partnerAssociate={business.partnerAssociate}
+                      status={business.status}
                       latestCheckIn={business.checkIns[0] ?? null}
                       checkInCount={business._count.checkIns}
                     />
@@ -77,6 +80,23 @@ export default async function Home() {
             </section>
           );
         })}
+      </div>
+
+      <div className="mt-10">
+        <h2 className="text-sm font-semibold tracking-wide text-zinc-500 uppercase">
+          Business Status
+        </h2>
+        <div className="mt-3">
+          <BusinessStatusSection
+            businesses={businesses.map((b) => ({
+              id: b.id,
+              name: b.name,
+              status: b.status,
+              subtitle: `${categoryLabel(b.category)} · ${b.partnerAssociate}`,
+            }))}
+            detailBasePath="/businesses"
+          />
+        </div>
       </div>
 
       <div className="mt-10">
