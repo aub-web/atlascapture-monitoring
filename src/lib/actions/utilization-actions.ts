@@ -44,7 +44,11 @@ export async function createUtilizationEntry(
   }
   const recordedHours = parseDurationFormData(formData);
   if (recordedHours === null) {
-    return { error: "Enter a valid recorded duration (hours, minutes 0-59, seconds 0-59)." };
+    return { error: "Enter a valid uploaded duration (hours, minutes 0-59, seconds 0-59)." };
+  }
+  const approvedHours = parseDurationFormData(formData, "approvedHours");
+  if (approvedHours === null) {
+    return { error: "Enter a valid approved duration (hours, minutes 0-59, seconds 0-59)." };
   }
   const recordingStatus = String(formData.get("recordingStatus") ?? "");
   if (!RECORDING_STATUSES.some((s) => s.value === recordingStatus)) {
@@ -58,6 +62,7 @@ export async function createUtilizationEntry(
       deviceType,
       deviceCount,
       recordedHours,
+      approvedHours,
       recordingStatus,
     },
     include: { business: { select: { name: true } } },
@@ -106,7 +111,11 @@ export async function updateUtilizationEntry(
   }
   const recordedHours = parseDurationFormData(formData);
   if (recordedHours === null) {
-    return { error: "Enter a valid recorded duration (hours, minutes 0-59, seconds 0-59)." };
+    return { error: "Enter a valid uploaded duration (hours, minutes 0-59, seconds 0-59)." };
+  }
+  const approvedHours = parseDurationFormData(formData, "approvedHours");
+  if (approvedHours === null) {
+    return { error: "Enter a valid approved duration (hours, minutes 0-59, seconds 0-59)." };
   }
   const recordingStatus = String(formData.get("recordingStatus") ?? "");
   if (!RECORDING_STATUSES.some((s) => s.value === recordingStatus)) {
@@ -120,6 +129,7 @@ export async function updateUtilizationEntry(
       deviceType,
       deviceCount,
       recordedHours,
+      approvedHours,
       recordingStatus,
     },
     include: { business: { select: { name: true } } },

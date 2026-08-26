@@ -25,7 +25,8 @@ export async function GET() {
     "Device Type",
     "Device Count",
     "Capacity Hours",
-    "Recorded Hours",
+    "Uploaded Hours",
+    "Approved Hours",
     "Utilization %",
     "Recording Status",
   ];
@@ -47,6 +48,7 @@ export async function GET() {
         entry.deviceCount,
         capacityHours,
         entry.recordedHours,
+        entry.approvedHours,
         percent === null ? "" : percent,
         recordingStatusLabel(entry.recordingStatus),
       ];
