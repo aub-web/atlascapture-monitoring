@@ -44,7 +44,6 @@ export default async function EditSalesUtilizationEntryPage({
             deviceType: entry.deviceType,
             deviceCount: entry.deviceCount,
             recordedHours: entry.recordedHours,
-            approvedHours: entry.approvedHours,
             remarks: entry.remarks,
             recordingStatus: entry.recordingStatus,
           }}

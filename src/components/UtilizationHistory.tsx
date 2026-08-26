@@ -23,7 +23,6 @@ type Entry = {
   deviceType: string;
   deviceCount: number;
   recordedHours: number;
-  approvedHours: number;
   remarks?: string | null;
   recordingStatus: string;
 };
@@ -72,7 +71,7 @@ export default function UtilizationHistory({
               <p className="text-sm text-zinc-500">
                 {deviceTypeLabel(entry.deviceType)} ·{" "}
                 {formatDeviceCount(entry.deviceCount)} ·{" "}
-                {entry.recordedHours}h uploaded · {entry.approvedHours}h approved
+                {entry.recordedHours}h recorded
                 {percent !== null && ` · ${percent}% utilized`}
               </p>
             </div>

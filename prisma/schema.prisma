@@ -80,7 +80,6 @@ model UtilizationEntry {
   deviceType      String
   deviceCount     Int
   recordedHours   Float    @default(0)
-  approvedHours   Float    @default(0)
   recordingStatus String   @default("ACTIVELY_RECORDING")
 
   createdAt DateTime @default(now())
@@ -124,7 +123,6 @@ model SalesUtilizationEntry {
   deviceType      String
   deviceCount     Int
   recordedHours   Float    @default(0)
-  approvedHours   Float    @default(0)
   remarks         String?
   recordingStatus String   @default("ACTIVELY_RECORDING")
 

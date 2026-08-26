@@ -27,7 +27,6 @@ export default function UtilizationForm({
     deviceType: string;
     deviceCount: number;
     recordedHours: number;
-    approvedHours?: number;
     remarks?: string | null;
     recordingStatus?: string;
   };
@@ -42,9 +41,6 @@ export default function UtilizationForm({
 
   const duration = defaultValues
     ? hoursToDurationParts(defaultValues.recordedHours)
-    : null;
-  const approvedDuration = defaultValues
-    ? hoursToDurationParts(defaultValues.approvedHours ?? 0)
     : null;
 
   return (
@@ -119,7 +115,7 @@ export default function UtilizationForm({
 
       <div>
         <span className="block text-sm font-medium text-zinc-700">
-          Uploaded hours (H:M:S)
+          Total recorded (H:M:S)
         </span>
         <div className="mt-1 grid grid-cols-3 gap-2">
           <div>
@@ -169,64 +165,6 @@ export default function UtilizationForm({
               required
               placeholder="SS"
               defaultValue={duration?.seconds}
-              className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-900"
-            />
-          </div>
-        </div>
-      </div>
-
-      <div>
-        <span className="block text-sm font-medium text-zinc-700">
-          Approved hours (H:M:S)
-        </span>
-        <div className="mt-1 grid grid-cols-3 gap-2">
-          <div>
-            <label htmlFor="approvedHoursH" className="sr-only">
-              Hours
-            </label>
-            <input
-              id="approvedHoursH"
-              name="approvedHoursH"
-              type="number"
-              min={0}
-              step={1}
-              required
-              placeholder="HH"
-              defaultValue={approvedDuration?.hours}
-              className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-900"
-            />
-          </div>
-          <div>
-            <label htmlFor="approvedHoursM" className="sr-only">
-              Minutes
-            </label>
-            <input
-              id="approvedHoursM"
-              name="approvedHoursM"
-              type="number"
-              min={0}
-              max={59}
-              step={1}
-              required
-              placeholder="MM"
-              defaultValue={approvedDuration?.minutes}
-              className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-900"
-            />
-          </div>
-          <div>
-            <label htmlFor="approvedHoursS" className="sr-only">
-              Seconds
-            </label>
-            <input
-              id="approvedHoursS"
-              name="approvedHoursS"
-              type="number"
-              min={0}
-              max={59}
-              step={1}
-              required
-              placeholder="SS"
-              defaultValue={approvedDuration?.seconds}
               className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-900"
             />
           </div>

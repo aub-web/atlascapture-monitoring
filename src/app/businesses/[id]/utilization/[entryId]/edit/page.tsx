@@ -43,7 +43,6 @@ export default async function EditUtilizationEntryPage({
             deviceType: entry.deviceType,
             deviceCount: entry.deviceCount,
             recordedHours: entry.recordedHours,
-            approvedHours: entry.approvedHours,
             recordingStatus: entry.recordingStatus,
           }}
         />
