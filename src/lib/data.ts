@@ -23,6 +23,16 @@ export function getAllUtilizationEntries() {
   });
 }
 
+// Same as getAllUtilizationEntries but joined with the business name — used
+// to build the combined Outbound + Sales weekly-hours chart on Overall
+// Monitoring.
+export function getAllUtilizationEntriesWithBusinessName() {
+  return prisma.utilizationEntry.findMany({
+    orderBy: { date: "asc" },
+    include: { business: { select: { name: true } } },
+  });
+}
+
 export function getPartnerAssociates() {
   return prisma.partnerAssociate.findMany({ orderBy: { name: "asc" } });
 }

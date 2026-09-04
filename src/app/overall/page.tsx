@@ -1,16 +1,22 @@
 import {
   getBusinessesWithLatestCheckIn,
-  getAllUtilizationEntries,
+  getAllUtilizationEntriesWithBusinessName,
 } from "@/lib/data";
 import {
-  getAllSalesUtilizationEntries,
+  getAllSalesUtilizationEntriesWithBusinessName,
   getSalesBusinessesWithUtilization,
 } from "@/lib/sales-data";
 import { updateBusinessNotes } from "@/lib/actions/business-actions";
 import { updateSalesBusinessNotes } from "@/lib/actions/sales-business-actions";
+import {
+  weekOverWeek,
+  groupWeeklyByBusiness,
+  type WeeklyEntry,
+} from "@/lib/weekly-hours";
 import CheckInSummaryTable from "@/components/CheckInSummaryTable";
 import SalesBusinessSummaryTable from "@/components/SalesBusinessSummaryTable";
-import SiteUtilizationOverview from "@/components/SiteUtilizationOverview";
+import WeekOverWeekPanel from "@/components/WeekOverWeekPanel";
+import WeeklyHoursByTeamChart from "@/components/WeeklyHoursByTeamChart";
 
 // Always show live data — never freeze this dashboard as a static build-time
 // snapshot.
@@ -20,10 +26,37 @@ export default async function OverallMonitoringPage() {
   const [businesses, outboundEntries, salesEntries, salesBusinesses] =
     await Promise.all([
       getBusinessesWithLatestCheckIn(),
-      getAllUtilizationEntries(),
-      getAllSalesUtilizationEntries(),
+      getAllUtilizationEntriesWithBusinessName(),
+      getAllSalesUtilizationEntriesWithBusinessName(),
       getSalesBusinessesWithUtilization(),
     ]);
+
+  const weeklyEntries: WeeklyEntry[] = [
+    ...outboundEntries.map((e) => ({
+      businessId: e.businessId,
+      businessName: e.business.name,
+      date: e.date,
+      deviceType: e.deviceType,
+      deviceCount: e.deviceCount,
+      recordedHours: e.recordedHours,
+    })),
+    ...salesEntries.map((e) => ({
+      businessId: e.businessId,
+      businessName: e.business.name,
+      date: e.date,
+      deviceType: e.deviceType,
+      deviceCount: e.deviceCount,
+      recordedHours: e.recordedHours,
+    })),
+  ];
+
+  const allTeams = [
+    ...businesses.map((b) => ({ id: b.id, name: b.name })),
+    ...salesBusinesses.map((b) => ({ id: b.id, name: b.name })),
+  ].sort((a, b) => a.name.localeCompare(b.name));
+
+  const weekOverWeekData = weekOverWeek(weeklyEntries);
+  const weeklyByBusiness = groupWeeklyByBusiness(weeklyEntries);
 
   return (
     <main className="w-full flex-1 px-6 py-10">
@@ -60,19 +93,23 @@ export default async function OverallMonitoringPage() {
 
       <section className="mt-10">
         <h2 className="text-sm font-semibold tracking-wide text-zinc-500 uppercase">
-          Outbound utilization
+          Daily total hours
         </h2>
         <div className="mt-3">
-          <SiteUtilizationOverview entries={outboundEntries} />
+          <WeekOverWeekPanel data={weekOverWeekData} />
         </div>
       </section>
 
       <section className="mt-10">
         <h2 className="text-sm font-semibold tracking-wide text-zinc-500 uppercase">
-          Sales utilization
+          Weekly hours by team (Sunday–Saturday)
         </h2>
+        <p className="mt-1 text-xs text-zinc-400">
+          Bars = total hours per business per week. Dashed line = utilization
+          (total hours ÷ number of devices) across selected businesses.
+        </p>
         <div className="mt-3">
-          <SiteUtilizationOverview entries={salesEntries} />
+          <WeeklyHoursByTeamChart weeks={weeklyByBusiness} businesses={allTeams} />
         </div>
       </section>
     </main>
