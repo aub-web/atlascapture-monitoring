@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 function OutboundIcon() {
   return (
@@ -65,6 +65,34 @@ function SearchIcon() {
         stroke="currentColor"
         strokeWidth={1.5}
         strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+function CollapseIcon() {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" className="h-4 w-4">
+      <path
+        d="M12.5 3.5l-6 6.5 6 6.5"
+        stroke="currentColor"
+        strokeWidth={1.5}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function ExpandIcon() {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" className="h-4 w-4">
+      <path
+        d="M7.5 3.5l6 6.5-6 6.5"
+        stroke="currentColor"
+        strokeWidth={1.5}
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   );
@@ -144,16 +172,60 @@ const ITEMS: {
   },
 ];
 
+const COLLAPSED_KEY = "sidebarCollapsed";
+
 export default function Sidebar() {
   const pathname = usePathname();
+  const [collapsed, setCollapsed] = useState(false);
+
+  useEffect(() => {
+    try {
+      setCollapsed(localStorage.getItem(COLLAPSED_KEY) === "true");
+    } catch {
+      // Ignore — localStorage may be unavailable (private browsing, etc.).
+    }
+  }, []);
+
+  function toggle() {
+    setCollapsed((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem(COLLAPSED_KEY, String(next));
+      } catch {
+        // Ignore — localStorage may be unavailable (private browsing, etc.).
+      }
+      return next;
+    });
+  }
 
   return (
-    <aside className="flex w-60 shrink-0 flex-col bg-slate-900 text-slate-100">
-      <div className="px-5 pt-6 pb-5">
-        <p className="text-lg font-semibold tracking-tight text-white">
-          Atlas Capture
-        </p>
-        <p className="mt-0.5 text-xs text-slate-400">SS Monitoring</p>
+    <aside
+      className={`flex shrink-0 flex-col bg-slate-900 text-slate-100 ${
+        collapsed ? "w-16" : "w-60"
+      }`}
+    >
+      <div
+        className={`flex items-center pt-6 pb-5 ${
+          collapsed ? "justify-center px-2" : "justify-between px-5"
+        }`}
+      >
+        {!collapsed && (
+          <div>
+            <p className="text-lg font-semibold tracking-tight text-white">
+              Atlas Capture
+            </p>
+            <p className="mt-0.5 text-xs text-slate-400">SS Monitoring</p>
+          </div>
+        )}
+        <button
+          type="button"
+          onClick={toggle}
+          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          className="rounded-md p-1.5 text-slate-400 hover:bg-slate-800 hover:text-white"
+        >
+          {collapsed ? <ExpandIcon /> : <CollapseIcon />}
+        </button>
       </div>
 
       <nav className="flex flex-1 flex-col gap-1 px-3">
@@ -163,14 +235,15 @@ export default function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
+              title={collapsed ? item.label : undefined}
               className={
                 active
-                  ? "flex items-center gap-3 rounded-lg border-l-2 border-emerald-400 bg-slate-800 py-2.5 pl-3 pr-3 text-sm font-medium text-white"
-                  : "flex items-center gap-3 rounded-lg border-l-2 border-transparent py-2.5 pl-3 pr-3 text-sm font-medium text-slate-300 hover:bg-slate-800/60 hover:text-white"
+                  ? `flex items-center gap-3 rounded-lg border-l-2 border-emerald-400 bg-slate-800 py-2.5 text-sm font-medium text-white ${collapsed ? "justify-center px-2" : "pl-3 pr-3"}`
+                  : `flex items-center gap-3 rounded-lg border-l-2 border-transparent py-2.5 text-sm font-medium text-slate-300 hover:bg-slate-800/60 hover:text-white ${collapsed ? "justify-center px-2" : "pl-3 pr-3"}`
               }
             >
               <item.icon />
-              {item.label}
+              {!collapsed && item.label}
             </Link>
           );
         })}
