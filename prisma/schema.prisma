@@ -29,6 +29,8 @@ model Business {
   partnerAssociate String
   // "ACTIVE" | "INACTIVE" — see src/lib/constants.ts.
   status           String   @default("ACTIVE")
+  qcFeedback       String?
+  remarks          String?
   createdAt        DateTime @default(now())
 
   checkIns           CheckIn[]
@@ -106,6 +108,8 @@ model SalesBusiness {
   salesAgent String
   // "ACTIVE" | "INACTIVE" — see src/lib/constants.ts.
   status     String   @default("ACTIVE")
+  qcFeedback String?
+  remarks    String?
   createdAt  DateTime @default(now())
 
   utilizationEntries SalesUtilizationEntry[]

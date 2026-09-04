@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getSalesBusinessesWithUtilization } from "@/lib/sales-data";
-import SalesBusinessRow from "@/components/SalesBusinessRow";
+import { updateSalesBusinessNotes } from "@/lib/actions/sales-business-actions";
+import SalesBusinessSummaryTable from "@/components/SalesBusinessSummaryTable";
 import DailyUtilizationTracker from "@/components/DailyUtilizationTracker";
 import BusinessStatusSection from "@/components/BusinessStatusSection";
 
@@ -44,23 +45,11 @@ export default async function SalesMonitoringHome() {
         </div>
       </div>
 
-      <div className="mt-8 space-y-2">
-        {businesses.length === 0 ? (
-          <p className="rounded-lg border border-dashed border-zinc-200 px-4 py-6 text-center text-sm text-zinc-400">
-            No businesses yet.
-          </p>
-        ) : (
-          businesses.map((business) => (
-            <SalesBusinessRow
-              key={business.id}
-              id={business.id}
-              name={business.name}
-              salesAgent={business.salesAgent}
-              status={business.status}
-              utilizationEntries={business.utilizationEntries}
-            />
-          ))
-        )}
+      <div className="mt-8">
+        <SalesBusinessSummaryTable
+          businesses={businesses}
+          notesAction={updateSalesBusinessNotes}
+        />
       </div>
 
       <div className="mt-10">

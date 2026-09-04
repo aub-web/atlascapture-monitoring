@@ -2,8 +2,14 @@ import {
   getBusinessesWithLatestCheckIn,
   getAllUtilizationEntries,
 } from "@/lib/data";
-import { getAllSalesUtilizationEntries } from "@/lib/sales-data";
+import {
+  getAllSalesUtilizationEntries,
+  getSalesBusinessesWithUtilization,
+} from "@/lib/sales-data";
+import { updateBusinessNotes } from "@/lib/actions/business-actions";
+import { updateSalesBusinessNotes } from "@/lib/actions/sales-business-actions";
 import CheckInSummaryTable from "@/components/CheckInSummaryTable";
+import SalesBusinessSummaryTable from "@/components/SalesBusinessSummaryTable";
 import SiteUtilizationOverview from "@/components/SiteUtilizationOverview";
 
 // Always show live data — never freeze this dashboard as a static build-time
@@ -11,11 +17,13 @@ import SiteUtilizationOverview from "@/components/SiteUtilizationOverview";
 export const dynamic = "force-dynamic";
 
 export default async function OverallMonitoringPage() {
-  const [businesses, outboundEntries, salesEntries] = await Promise.all([
-    getBusinessesWithLatestCheckIn(),
-    getAllUtilizationEntries(),
-    getAllSalesUtilizationEntries(),
-  ]);
+  const [businesses, outboundEntries, salesEntries, salesBusinesses] =
+    await Promise.all([
+      getBusinessesWithLatestCheckIn(),
+      getAllUtilizationEntries(),
+      getAllSalesUtilizationEntries(),
+      getSalesBusinessesWithUtilization(),
+    ]);
 
   return (
     <main className="mx-auto w-full max-w-5xl flex-1 px-6 py-10">
@@ -31,7 +39,22 @@ export default async function OverallMonitoringPage() {
           Outbound check-in summary
         </h2>
         <div className="mt-3">
-          <CheckInSummaryTable businesses={businesses} />
+          <CheckInSummaryTable
+            businesses={businesses}
+            notesAction={updateBusinessNotes}
+          />
+        </div>
+      </section>
+
+      <section className="mt-10">
+        <h2 className="text-sm font-semibold tracking-wide text-zinc-500 uppercase">
+          Sales business summary
+        </h2>
+        <div className="mt-3">
+          <SalesBusinessSummaryTable
+            businesses={salesBusinesses}
+            notesAction={updateSalesBusinessNotes}
+          />
         </div>
       </section>
 

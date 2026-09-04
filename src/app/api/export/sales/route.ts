@@ -27,6 +27,8 @@ export async function GET() {
     "Utilization %",
     "Recording Status",
     "Remarks",
+    "QC Feedback",
+    "Business Remarks",
   ];
 
   const rows = businesses.flatMap((business) =>
@@ -48,6 +50,8 @@ export async function GET() {
         percent === null ? "" : percent,
         recordingStatusLabel(entry.recordingStatus),
         entry.remarks ?? "",
+        business.qcFeedback ?? "",
+        business.remarks ?? "",
       ];
     }),
   );

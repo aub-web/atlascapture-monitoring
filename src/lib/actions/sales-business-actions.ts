@@ -109,6 +109,37 @@ export async function updateSalesBusinessStatus(
   redirect(`/sales/businesses/${id}`);
 }
 
+export async function updateSalesBusinessNotes(
+  formData: FormData,
+): Promise<void> {
+  const id = String(formData.get("id") ?? "");
+  if (!id) return;
+
+  const data: { qcFeedback?: string | null; remarks?: string | null } = {};
+  if (formData.has("qcFeedback")) {
+    const value = String(formData.get("qcFeedback") ?? "").trim();
+    data.qcFeedback = value === "" ? null : value;
+  }
+  if (formData.has("remarks")) {
+    const value = String(formData.get("remarks") ?? "").trim();
+    data.remarks = value === "" ? null : value;
+  }
+  if (Object.keys(data).length === 0) return;
+
+  const business = await prisma.salesBusiness.update({ where: { id }, data });
+
+  await logAudit(
+    "UPDATE",
+    "SalesBusiness",
+    business.id,
+    `Updated notes for "${business.name}"`,
+  );
+
+  revalidatePath("/sales");
+  revalidatePath("/overall");
+  revalidatePath(`/sales/businesses/${id}`);
+}
+
 export async function deleteSalesBusiness(formData: FormData): Promise<void> {
   const id = String(formData.get("id") ?? "");
   const business = await prisma.salesBusiness.delete({ where: { id } });

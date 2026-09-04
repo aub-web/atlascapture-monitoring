@@ -1,29 +1,24 @@
 import Link from "next/link";
 import { formatDate } from "@/lib/date";
-import { categoryLabel, deviceTypeLabel } from "@/lib/constants";
+import {
+  totalUtilization,
+  utilizationPercent,
+  type UtilizationEntryLike,
+} from "@/lib/utilization";
 import BusinessStatusBadge from "@/components/BusinessStatusBadge";
 import InlineEditField from "@/components/InlineEditField";
-
-type CheckIn = {
-  checkInDate: Date;
-  recordingsCount: number;
-  expectedHours: number;
-  deviceType: string;
-  whatWentWrong: string | null;
-};
 
 type Business = {
   id: string;
   name: string;
-  category: string;
-  partnerAssociate: string;
+  salesAgent: string;
   status: string;
   qcFeedback: string | null;
   remarks: string | null;
-  checkIns: CheckIn[];
+  utilizationEntries: UtilizationEntryLike[];
 };
 
-export default function CheckInSummaryTable({
+export default function SalesBusinessSummaryTable({
   businesses,
   notesAction,
 }: {
@@ -45,20 +40,21 @@ export default function CheckInSummaryTable({
           <tr className="border-b border-zinc-200 text-xs text-zinc-500">
             <th className="px-4 py-2 font-medium">Business</th>
             <th className="px-4 py-2 font-medium">Status</th>
-            <th className="px-4 py-2 font-medium">Category</th>
-            <th className="px-4 py-2 font-medium">Partner Associate</th>
-            <th className="px-4 py-2 font-medium">Last Check-in</th>
-            <th className="px-4 py-2 font-medium">Recorded / Expected</th>
-            <th className="px-4 py-2 font-medium">Notes</th>
+            <th className="px-4 py-2 font-medium">Sales Agent</th>
+            <th className="px-4 py-2 font-medium">Last Logged</th>
+            <th className="px-4 py-2 font-medium">Recorded / Utilized</th>
             <th className="px-4 py-2 font-medium">QC Feedback</th>
             <th className="px-4 py-2 font-medium">Remarks</th>
           </tr>
         </thead>
         <tbody>
           {businesses.map((business) => {
-            const latest = business.checkIns[0] ?? null;
-            const behindQuota =
-              latest !== null && latest.recordingsCount < latest.expectedHours;
+            const latest = business.utilizationEntries[0] ?? null;
+            const totals = totalUtilization(business.utilizationEntries);
+            const percent = utilizationPercent(
+              totals.recordedHours,
+              totals.totalHours,
+            );
             return (
               <tr
                 key={business.id}
@@ -66,7 +62,7 @@ export default function CheckInSummaryTable({
               >
                 <td className="px-4 py-2">
                   <Link
-                    href={`/businesses/${business.id}`}
+                    href={`/sales/businesses/${business.id}`}
                     className="font-medium text-zinc-900 hover:underline"
                   >
                     {business.name}
@@ -76,34 +72,21 @@ export default function CheckInSummaryTable({
                   <BusinessStatusBadge status={business.status} />
                 </td>
                 <td className="px-4 py-2 text-zinc-600">
-                  {categoryLabel(business.category)}
-                </td>
-                <td className="px-4 py-2 text-zinc-600">
-                  {business.partnerAssociate}
+                  {business.salesAgent}
                 </td>
                 {latest ? (
                   <>
                     <td className="px-4 py-2 text-zinc-600">
-                      {formatDate(latest.checkInDate)}
+                      {formatDate(latest.date)}
                     </td>
-                    <td
-                      className={
-                        behindQuota
-                          ? "px-4 py-2 font-medium text-amber-600"
-                          : "px-4 py-2 text-zinc-600"
-                      }
-                    >
-                      {latest.recordingsCount} recorded /{" "}
-                      {latest.expectedHours}h expected ·{" "}
-                      {deviceTypeLabel(latest.deviceType)}
-                    </td>
-                    <td className="px-4 py-2 text-zinc-500">
-                      {latest.whatWentWrong ?? "—"}
+                    <td className="px-4 py-2 text-zinc-600">
+                      {totals.recordedHours}h recorded
+                      {percent !== null && ` · ${percent}% utilized`}
                     </td>
                   </>
                 ) : (
-                  <td className="px-4 py-2 text-zinc-400" colSpan={3}>
-                    No check-ins yet
+                  <td className="px-4 py-2 text-zinc-400" colSpan={2}>
+                    No utilization logged yet
                   </td>
                 )}
                 <td className="px-2 py-1">

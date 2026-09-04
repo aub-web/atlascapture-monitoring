@@ -18,6 +18,13 @@ function round1(value: number): number {
   return Math.round(value * 10) / 10;
 }
 
+// Summing many already-rounded floats (e.g. recordedHours) drifts due to
+// binary floating-point representation (0.1 + 0.2 !== 0.3) — round the total
+// back to 2 decimals so it displays cleanly.
+function round2(value: number): number {
+  return Math.round(value * 100) / 100;
+}
+
 export function utilizationPercent(
   recordedHours: number,
   capacityHours: number,
@@ -130,9 +137,9 @@ export function groupUtilization(
     }
   }
 
-  return Array.from(buckets.values()).sort(
-    (a, b) => b.start.getTime() - a.start.getTime(),
-  );
+  return Array.from(buckets.values())
+    .map((bucket) => ({ ...bucket, recordedHours: round2(bucket.recordedHours) }))
+    .sort((a, b) => b.start.getTime() - a.start.getTime());
 }
 
 export function totalUtilization(entries: UtilizationEntryLike[]): {
@@ -154,6 +161,6 @@ export function totalUtilization(entries: UtilizationEntryLike[]): {
     monoHours,
     multicamHours,
     totalHours: monoHours + multicamHours,
-    recordedHours,
+    recordedHours: round2(recordedHours),
   };
 }

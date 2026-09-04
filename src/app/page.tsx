@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { getBusinessesWithLatestCheckIn } from "@/lib/data";
-import { BUSINESS_CATEGORIES, MONITORING_CADENCE_DAYS } from "@/lib/constants";
-import BusinessRow from "@/components/BusinessRow";
+import { MONITORING_CADENCE_DAYS, categoryLabel } from "@/lib/constants";
+import { updateBusinessNotes } from "@/lib/actions/business-actions";
+import CheckInSummaryTable from "@/components/CheckInSummaryTable";
 import DailyUtilizationTracker from "@/components/DailyUtilizationTracker";
 import BusinessStatusSection from "@/components/BusinessStatusSection";
-import { categoryLabel } from "@/lib/constants";
 
 // Always show live data — never freeze this dashboard as a static build-time
 // snapshot.
@@ -47,39 +47,11 @@ export default async function Home() {
         </div>
       </div>
 
-      <div className="mt-8 space-y-10">
-        {BUSINESS_CATEGORIES.map((category) => {
-          const items = businesses.filter((b) => b.category === category.value);
-          return (
-            <section key={category.value}>
-              <h2 className="text-sm font-semibold tracking-wide text-zinc-500 uppercase">
-                {category.label}{" "}
-                <span className="font-normal normal-case text-zinc-400">
-                  ({items.length})
-                </span>
-              </h2>
-              <div className="mt-3 space-y-2">
-                {items.length === 0 ? (
-                  <p className="rounded-lg border border-dashed border-zinc-200 px-4 py-6 text-center text-sm text-zinc-400">
-                    No {category.label.toLowerCase()} accounts yet.
-                  </p>
-                ) : (
-                  items.map((business) => (
-                    <BusinessRow
-                      key={business.id}
-                      id={business.id}
-                      name={business.name}
-                      partnerAssociate={business.partnerAssociate}
-                      status={business.status}
-                      latestCheckIn={business.checkIns[0] ?? null}
-                      checkInCount={business._count.checkIns}
-                    />
-                  ))
-                )}
-              </div>
-            </section>
-          );
-        })}
+      <div className="mt-8">
+        <CheckInSummaryTable
+          businesses={businesses}
+          notesAction={updateBusinessNotes}
+        />
       </div>
 
       <div className="mt-10">
