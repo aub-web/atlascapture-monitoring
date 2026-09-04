@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react";
 import {
-  Bar,
   CartesianGrid,
   ComposedChart,
   Legend,
@@ -180,12 +179,14 @@ export default function WeeklyHoursByTeamChart({
                 }
               />
               {selectedBusinesses.map((b) => (
-                <Bar
+                <Line
                   key={b.id}
                   yAxisId="left"
+                  type="monotone"
                   dataKey={b.id}
-                  stackId="hours"
-                  fill={colorForId(b.id)}
+                  stroke={colorForId(b.id)}
+                  strokeWidth={1.5}
+                  dot={false}
                   name={b.id}
                 />
               ))}

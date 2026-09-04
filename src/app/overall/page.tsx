@@ -105,7 +105,7 @@ export default async function OverallMonitoringPage() {
           Weekly hours by team (Sunday–Saturday)
         </h2>
         <p className="mt-1 text-xs text-zinc-400">
-          Bars = total hours per business per week. Dashed line = utilization
+          Lines = total hours per business per week. Dashed line = utilization
           (total hours ÷ number of devices) across selected businesses.
         </p>
         <div className="mt-3">
