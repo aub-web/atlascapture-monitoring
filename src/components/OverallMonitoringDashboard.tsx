@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { getBusinessesWithLatestCheckIn } from "@/lib/data";
 import type { getSalesBusinessesWithUtilization } from "@/lib/sales-data";
 import {
@@ -33,14 +33,6 @@ type OutboundEntry = {
 
 type SalesEntry = OutboundEntry & { remarks: string | null };
 
-const SECTIONS = [
-  { id: "outbound-summary", label: "Outbound check-in summary" },
-  { id: "sales-summary", label: "Sales business summary" },
-  { id: "daily-total-hours", label: "Daily total hours" },
-  { id: "weekly-hours-by-team", label: "Weekly hours by team" },
-  { id: "utilization-trend", label: "Daily / weekly / monthly utilization" },
-];
-
 function inRange(date: Date, from: string, to: string): boolean {
   const d = date.getTime();
   if (from && d < new Date(`${from}T00:00:00`).getTime()) return false;
@@ -67,6 +59,17 @@ export default function OverallMonitoringDashboard({
 }) {
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
+
+  // Navigating here from another page (e.g. a sidebar sub-link) lands with
+  // the target section already in the URL hash, but Next.js doesn't always
+  // scroll to it once this dynamic page's content has streamed in — do it
+  // ourselves once mounted.
+  useEffect(() => {
+    if (!window.location.hash) return;
+    const id = window.location.hash.slice(1);
+    const el = document.getElementById(id);
+    el?.scrollIntoView();
+  }, []);
 
   const filteredBusinesses = useMemo(
     () =>
@@ -133,19 +136,7 @@ export default function OverallMonitoringDashboard({
 
   return (
     <div>
-      <nav className="flex flex-wrap gap-x-4 gap-y-1 border-b border-zinc-200 pb-3 text-sm">
-        {SECTIONS.map((s) => (
-          <a
-            key={s.id}
-            href={`#${s.id}`}
-            className="text-zinc-500 hover:text-zinc-900 hover:underline"
-          >
-            {s.label}
-          </a>
-        ))}
-      </nav>
-
-      <div className="mt-4 flex flex-wrap items-end gap-3 rounded-lg border border-zinc-200 bg-white p-4">
+      <div className="flex flex-wrap items-end gap-3 rounded-lg border border-zinc-200 bg-white p-4">
         <div>
           <label htmlFor="overall-from" className="block text-xs text-zinc-500">
             From

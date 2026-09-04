@@ -98,6 +98,24 @@ function ExpandIcon() {
   );
 }
 
+function ChevronDownIcon({ open }: { open: boolean }) {
+  return (
+    <svg
+      viewBox="0 0 20 20"
+      fill="none"
+      className={`h-4 w-4 shrink-0 transition-transform ${open ? "rotate-180" : ""}`}
+    >
+      <path
+        d="M5 7.5l5 5 5-5"
+        stroke="currentColor"
+        strokeWidth={1.5}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 function AdminIcon() {
   return (
     <svg viewBox="0 0 20 20" fill="none" className="h-5 w-5">
@@ -118,11 +136,20 @@ function AdminIcon() {
   );
 }
 
+const OVERALL_SUBSECTIONS: { id: string; label: string }[] = [
+  { id: "outbound-summary", label: "Outbound check-in summary" },
+  { id: "sales-summary", label: "Sales business summary" },
+  { id: "daily-total-hours", label: "Daily total hours" },
+  { id: "weekly-hours-by-team", label: "Weekly hours by team" },
+  { id: "utilization-trend", label: "Daily / weekly / monthly utilization" },
+];
+
 const ITEMS: {
   href: string;
   label: string;
   icon: () => ReactNode;
   match: (pathname: string) => boolean;
+  children?: { id: string; label: string }[];
 }[] = [
   {
     href: "/",
@@ -145,6 +172,7 @@ const ITEMS: {
     label: "Overall Monitoring",
     icon: OverallIcon,
     match: (p) => p.startsWith("/overall"),
+    children: OVERALL_SUBSECTIONS,
   },
   {
     href: "/businesses/status",
@@ -177,6 +205,18 @@ const COLLAPSED_KEY = "sidebarCollapsed";
 export default function Sidebar() {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
+  const [openMenus, setOpenMenus] = useState<Set<string>>(
+    () => new Set(["/overall"]),
+  );
+
+  function toggleMenu(href: string) {
+    setOpenMenus((prev) => {
+      const next = new Set(prev);
+      if (next.has(href)) next.delete(href);
+      else next.add(href);
+      return next;
+    });
+  }
 
   useEffect(() => {
     try {
@@ -231,20 +271,51 @@ export default function Sidebar() {
       <nav className="flex flex-1 flex-col gap-1 px-3">
         {ITEMS.map((item) => {
           const active = item.match(pathname);
+          const isOpen = openMenus.has(item.href);
           return (
-            <Link
-              key={item.href}
-              href={item.href}
-              title={collapsed ? item.label : undefined}
-              className={
-                active
-                  ? `flex items-center gap-3 rounded-lg border-l-2 border-emerald-400 bg-slate-800 py-2.5 text-sm font-medium text-white ${collapsed ? "justify-center px-2" : "pl-3 pr-3"}`
-                  : `flex items-center gap-3 rounded-lg border-l-2 border-transparent py-2.5 text-sm font-medium text-slate-300 hover:bg-slate-800/60 hover:text-white ${collapsed ? "justify-center px-2" : "pl-3 pr-3"}`
-              }
-            >
-              <item.icon />
-              {!collapsed && item.label}
-            </Link>
+            <div key={item.href}>
+              <div
+                className={
+                  active
+                    ? "flex items-center rounded-lg border-l-2 border-emerald-400 bg-slate-800 text-sm font-medium text-white"
+                    : "flex items-center rounded-lg border-l-2 border-transparent text-sm font-medium text-slate-300 hover:bg-slate-800/60 hover:text-white"
+                }
+              >
+                <Link
+                  href={item.href}
+                  title={collapsed ? item.label : undefined}
+                  className={`flex flex-1 items-center gap-3 py-2.5 ${collapsed ? "justify-center px-2" : "pl-3 pr-1"}`}
+                >
+                  <item.icon />
+                  {!collapsed && item.label}
+                </Link>
+                {!collapsed && item.children && (
+                  <button
+                    type="button"
+                    onClick={() => toggleMenu(item.href)}
+                    aria-label={isOpen ? "Collapse section" : "Expand section"}
+                    className="rounded-md p-2 text-slate-400 hover:text-white"
+                  >
+                    <ChevronDownIcon open={isOpen} />
+                  </button>
+                )}
+              </div>
+
+              {!collapsed && item.children && isOpen && (
+                <div className="mt-0.5 flex flex-col gap-0.5 border-l border-slate-800 pl-4">
+                  {item.children.map((child) => (
+                    <Link
+                      key={child.id}
+                      href={`${item.href}#${child.id}`}
+                      className="truncate rounded-md py-1.5 pl-3 text-xs text-slate-400 hover:bg-slate-800/60 hover:text-white"
+                      title={child.label}
+                    >
+                      {child.label}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
           );
         })}
       </nav>
