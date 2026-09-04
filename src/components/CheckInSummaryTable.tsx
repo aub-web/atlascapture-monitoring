@@ -1,3 +1,6 @@
+"use client";
+
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { formatDate } from "@/lib/date";
 import { categoryLabel, deviceTypeLabel } from "@/lib/constants";
@@ -30,6 +33,17 @@ export default function CheckInSummaryTable({
   businesses: Business[];
   notesAction: (formData: FormData) => Promise<void>;
 }) {
+  const [associate, setAssociate] = useState("");
+
+  const associates = useMemo(
+    () =>
+      Array.from(new Set(businesses.map((b) => b.partnerAssociate))).sort(),
+    [businesses],
+  );
+  const filtered = associate
+    ? businesses.filter((b) => b.partnerAssociate === associate)
+    : businesses;
+
   if (businesses.length === 0) {
     return (
       <p className="rounded-lg border border-dashed border-zinc-200 px-4 py-6 text-center text-sm text-zinc-400">
@@ -39,9 +53,34 @@ export default function CheckInSummaryTable({
   }
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-zinc-200 bg-white">
-      <table className="w-full text-left text-sm">
-        <thead>
+    <div>
+      <div className="mb-3 flex items-center gap-2">
+        <label htmlFor="associate-filter" className="text-sm text-zinc-500">
+          Partner Associate
+        </label>
+        <select
+          id="associate-filter"
+          value={associate}
+          onChange={(e) => setAssociate(e.target.value)}
+          className="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm text-zinc-900"
+        >
+          <option value="">All</option>
+          {associates.map((name) => (
+            <option key={name} value={name}>
+              {name}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {filtered.length === 0 ? (
+        <p className="rounded-lg border border-dashed border-zinc-200 px-4 py-6 text-center text-sm text-zinc-400">
+          No businesses match this filter.
+        </p>
+      ) : (
+        <div className="overflow-x-auto rounded-lg border border-zinc-200 bg-white">
+          <table className="w-full text-left text-sm">
+            <thead>
           <tr className="border-b border-zinc-200 text-xs text-zinc-500">
             <th className="px-4 py-2 font-medium">Business</th>
             <th className="px-4 py-2 font-medium">Status</th>
@@ -55,7 +94,7 @@ export default function CheckInSummaryTable({
           </tr>
         </thead>
         <tbody>
-          {businesses.map((business) => {
+          {filtered.map((business) => {
             const latest = business.checkIns[0] ?? null;
             const behindQuota =
               latest !== null && latest.recordingsCount < latest.expectedHours;
@@ -128,7 +167,9 @@ export default function CheckInSummaryTable({
             );
           })}
         </tbody>
-      </table>
+          </table>
+        </div>
+      )}
     </div>
   );
 }
