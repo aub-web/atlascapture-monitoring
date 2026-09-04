@@ -240,7 +240,7 @@ export default function Sidebar() {
 
   return (
     <aside
-      className={`flex shrink-0 flex-col bg-slate-900 text-slate-100 ${
+      className={`flex h-screen shrink-0 flex-col overflow-y-auto bg-slate-900 text-slate-100 ${
         collapsed ? "w-16" : "w-60"
       }`}
     >
