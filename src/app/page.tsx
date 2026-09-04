@@ -12,6 +12,7 @@ export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const businesses = await getBusinessesWithLatestCheckIn();
+  const activeBusinesses = businesses.filter((b) => b.status === "ACTIVE");
 
   return (
     <main className="w-full flex-1 px-6 py-10">
@@ -49,7 +50,7 @@ export default async function Home() {
 
       <div className="mt-8">
         <CheckInSummaryTable
-          businesses={businesses}
+          businesses={activeBusinesses}
           notesAction={updateBusinessNotes}
         />
       </div>
@@ -80,7 +81,7 @@ export default async function Home() {
         </p>
         <div className="mt-3">
           <DailyUtilizationTracker
-            businesses={businesses.map((b) => ({
+            businesses={activeBusinesses.map((b) => ({
               id: b.id,
               name: b.name,
               latestEntry: b.utilizationEntries[0] ?? null,

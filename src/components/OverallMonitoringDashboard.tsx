@@ -71,34 +71,63 @@ export default function OverallMonitoringDashboard({
     el?.scrollIntoView();
   }, []);
 
+  // Monitoring views only track active businesses — inactive ones stay
+  // visible on the dedicated Business Status pages instead.
+  const activeBusinesses = useMemo(
+    () => businesses.filter((b) => b.status === "ACTIVE"),
+    [businesses],
+  );
+  const activeSalesBusinesses = useMemo(
+    () => salesBusinesses.filter((b) => b.status === "ACTIVE"),
+    [salesBusinesses],
+  );
+  const activeIds = useMemo(
+    () =>
+      new Set([
+        ...activeBusinesses.map((b) => b.id),
+        ...activeSalesBusinesses.map((b) => b.id),
+      ]),
+    [activeBusinesses, activeSalesBusinesses],
+  );
+  const activeTeams = useMemo(
+    () => allTeams.filter((t) => activeIds.has(t.id)),
+    [allTeams, activeIds],
+  );
+
   const filteredBusinesses = useMemo(
     () =>
-      businesses.map((b) => ({
+      activeBusinesses.map((b) => ({
         ...b,
         checkIns: b.checkIns.filter((c) => inRange(c.checkInDate, from, to)),
       })),
-    [businesses, from, to],
+    [activeBusinesses, from, to],
   );
 
   const filteredSalesBusinesses = useMemo(
     () =>
-      salesBusinesses.map((b) => ({
+      activeSalesBusinesses.map((b) => ({
         ...b,
         utilizationEntries: b.utilizationEntries.filter((e) =>
           inRange(e.date, from, to),
         ),
       })),
-    [salesBusinesses, from, to],
+    [activeSalesBusinesses, from, to],
   );
 
   const filteredOutboundEntries = useMemo(
-    () => outboundEntries.filter((e) => inRange(e.date, from, to)),
-    [outboundEntries, from, to],
+    () =>
+      outboundEntries.filter(
+        (e) => activeIds.has(e.businessId) && inRange(e.date, from, to),
+      ),
+    [outboundEntries, activeIds, from, to],
   );
 
   const filteredSalesEntries = useMemo(
-    () => salesEntries.filter((e) => inRange(e.date, from, to)),
-    [salesEntries, from, to],
+    () =>
+      salesEntries.filter(
+        (e) => activeIds.has(e.businessId) && inRange(e.date, from, to),
+      ),
+    [salesEntries, activeIds, from, to],
   );
 
   const weeklyEntries: WeeklyEntry[] = useMemo(
@@ -221,7 +250,7 @@ export default function OverallMonitoringDashboard({
           businesses.
         </p>
         <div className="mt-3">
-          <WeeklyHoursByTeamChart weeks={weeklyByBusiness} businesses={allTeams} />
+          <WeeklyHoursByTeamChart weeks={weeklyByBusiness} businesses={activeTeams} />
         </div>
       </section>
 
