@@ -13,7 +13,7 @@ export default async function SalesMonitoringHome() {
   const businesses = await getSalesBusinessesWithUtilization();
 
   return (
-    <main className="mx-auto w-full max-w-4xl flex-1 px-6 py-10">
+    <main className="w-full flex-1 px-6 py-10">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="text-2xl font-semibold text-zinc-900">

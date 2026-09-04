@@ -26,7 +26,7 @@ export default async function OverallMonitoringPage() {
     ]);
 
   return (
-    <main className="mx-auto w-full max-w-5xl flex-1 px-6 py-10">
+    <main className="w-full flex-1 px-6 py-10">
       <h1 className="text-2xl font-semibold text-zinc-900">
         Overall Monitoring
       </h1>
