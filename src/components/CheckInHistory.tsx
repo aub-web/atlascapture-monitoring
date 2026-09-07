@@ -54,7 +54,7 @@ export default function CheckInHistory({
                       : "text-sm text-zinc-500"
                   }
                 >
-                  {checkIn.recordingsCount} recorded / expected{" "}
+                  {checkIn.recordingsCount} recorders / expected{" "}
                   {checkIn.expectedHours}h · {checkIn.startTime}–
                   {checkIn.stopTime} · {deviceTypeLabel(checkIn.deviceType)}
                 </p>

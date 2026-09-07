@@ -115,7 +115,7 @@ export default function CheckInForm({
             htmlFor="recordingsCount"
             className="block text-sm font-medium text-zinc-700"
           >
-            How many recorded
+            Number of recorders
           </label>
           <input
             id="recordingsCount"
@@ -127,6 +127,10 @@ export default function CheckInForm({
             defaultValue={defaultValues?.recordingsCount}
             className="mt-1 w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-900"
           />
+          <p className="mt-1 text-xs text-zinc-400">
+            Devices/recorders used, not hours — log actual recorded hours
+            below under Utilization.
+          </p>
         </div>
       </div>
 

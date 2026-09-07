@@ -87,7 +87,7 @@ export default function CheckInSummaryTable({
             <th className="px-4 py-2 font-medium">Category</th>
             <th className="px-4 py-2 font-medium">Partner Associate</th>
             <th className="px-4 py-2 font-medium">Last Check-in</th>
-            <th className="px-4 py-2 font-medium">Recorded / Expected</th>
+            <th className="px-4 py-2 font-medium">Recorders / Expected</th>
             <th className="px-4 py-2 font-medium">Notes</th>
             <th className="px-4 py-2 font-medium">QC Feedback</th>
             <th className="px-4 py-2 font-medium">Remarks</th>
@@ -132,7 +132,7 @@ export default function CheckInSummaryTable({
                           : "px-4 py-2 text-zinc-600"
                       }
                     >
-                      {latest.recordingsCount} recorded /{" "}
+                      {latest.recordingsCount} recorders /{" "}
                       {latest.expectedHours}h expected ·{" "}
                       {deviceTypeLabel(latest.deviceType)}
                     </td>

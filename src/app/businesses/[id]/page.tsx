@@ -102,7 +102,7 @@ export default async function BusinessDetailPage({
           </h2>
           {avgExpectedHours !== null && (
             <p className="text-xs text-zinc-400">
-              Avg {avgRecorded}h recorded / {avgExpectedHours}h expected
+              Avg {avgRecorded} recorders / {avgExpectedHours}h expected
             </p>
           )}
         </div>

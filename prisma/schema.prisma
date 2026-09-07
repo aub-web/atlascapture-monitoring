@@ -48,7 +48,9 @@ model CheckIn {
 
   checkInDate DateTime
 
-  // How many outbound calls were actually recorded during this check-in period.
+  // Number of recording devices/recorders in use during this check-in —
+  // not hours. Actual recorded hours are logged separately via
+  // UtilizationEntry.
   recordingsCount Int
   // Time of day the rep is expected to start/stop recording, e.g. "09:00".
   startTime String

@@ -41,7 +41,7 @@ export async function createCheckIn(
 
   const recordingsCount = Number(recordingsCountValue);
   if (!Number.isInteger(recordingsCount) || recordingsCount < 0) {
-    return { error: "Recordings count must be a whole number, 0 or more." };
+    return { error: "Number of recorders must be a whole number, 0 or more." };
   }
 
   if (!startTime || !stopTime) {
@@ -111,7 +111,7 @@ export async function updateCheckIn(
   }
   const recordingsCount = Number(recordingsCountValue);
   if (!Number.isInteger(recordingsCount) || recordingsCount < 0) {
-    return { error: "Recordings count must be a whole number, 0 or more." };
+    return { error: "Number of recorders must be a whole number, 0 or more." };
   }
   if (!startTime || !stopTime) {
     return { error: "Start and stop time are required." };
