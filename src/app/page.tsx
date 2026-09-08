@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getBusinessesWithLatestCheckIn } from "@/lib/data";
 import { MONITORING_CADENCE_DAYS, categoryLabel } from "@/lib/constants";
+import { effectiveDevicesForBusiness } from "@/lib/utilization";
 import { updateBusinessNotes } from "@/lib/actions/business-actions";
 import CheckInSummaryTable from "@/components/CheckInSummaryTable";
 import DailyUtilizationTracker from "@/components/DailyUtilizationTracker";
@@ -85,6 +86,7 @@ export default async function Home() {
               id: b.id,
               name: b.name,
               latestEntry: b.utilizationEntries[0] ?? null,
+              effectiveDevices: effectiveDevicesForBusiness(b),
             }))}
             detailBasePath="/businesses"
           />

@@ -6,6 +6,7 @@ import { formatDate } from "@/lib/date";
 import {
   totalUtilization,
   utilizationPercent,
+  effectiveDevicesForBusiness,
   type UtilizationEntryLike,
 } from "@/lib/utilization";
 import BusinessStatusBadge from "@/components/BusinessStatusBadge";
@@ -18,6 +19,10 @@ type Business = {
   status: string;
   qcFeedback: string | null;
   remarks: string | null;
+  issuedMonoCount: number;
+  issuedMulticamCount: number;
+  defectiveMonoCount: number;
+  defectiveMulticamCount: number;
   utilizationEntries: UtilizationEntryLike[];
 };
 
@@ -88,7 +93,10 @@ export default function SalesBusinessSummaryTable({
             <tbody>
               {filtered.map((business) => {
                 const latest = business.utilizationEntries[0] ?? null;
-                const totals = totalUtilization(business.utilizationEntries);
+                const totals = totalUtilization(
+                  business.utilizationEntries,
+                  effectiveDevicesForBusiness(business),
+                );
                 const percent = utilizationPercent(
                   totals.recordedHours,
                   totals.totalHours,

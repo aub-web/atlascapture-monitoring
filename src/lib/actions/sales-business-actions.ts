@@ -140,6 +140,42 @@ export async function updateSalesBusinessNotes(
   revalidatePath(`/sales/businesses/${id}`);
 }
 
+const DEVICE_COUNT_FIELDS = [
+  "issuedMonoCount",
+  "issuedMulticamCount",
+  "defectiveMonoCount",
+  "defectiveMulticamCount",
+] as const;
+
+export async function updateSalesBusinessDevices(
+  formData: FormData,
+): Promise<void> {
+  const id = String(formData.get("id") ?? "");
+  if (!id) return;
+
+  const data: Record<string, number> = {};
+  for (const field of DEVICE_COUNT_FIELDS) {
+    if (!formData.has(field)) continue;
+    const value = Number(formData.get(field));
+    if (!Number.isInteger(value) || value < 0) continue;
+    data[field] = value;
+  }
+  if (Object.keys(data).length === 0) return;
+
+  const business = await prisma.salesBusiness.update({ where: { id }, data });
+
+  await logAudit(
+    "UPDATE",
+    "SalesBusiness",
+    business.id,
+    `Updated device allocation for "${business.name}"`,
+  );
+
+  revalidatePath("/sales");
+  revalidatePath("/overall");
+  revalidatePath(`/sales/businesses/${id}`);
+}
+
 export async function deleteSalesBusiness(formData: FormData): Promise<void> {
   const id = String(formData.get("id") ?? "");
   const business = await prisma.salesBusiness.delete({ where: { id } });

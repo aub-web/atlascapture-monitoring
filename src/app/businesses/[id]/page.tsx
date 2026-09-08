@@ -1,9 +1,14 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getBusinessWithCheckIns } from "@/lib/data";
-import { deleteBusiness, updateBusinessStatus } from "@/lib/actions/business-actions";
+import {
+  deleteBusiness,
+  updateBusinessStatus,
+  updateBusinessDevices,
+} from "@/lib/actions/business-actions";
 import { categoryLabel, MONITORING_CADENCE_DAYS } from "@/lib/constants";
 import { averageHours } from "@/lib/hours";
+import { effectiveDevicesForBusiness } from "@/lib/utilization";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
 import {
   createUtilizationEntry,
@@ -17,6 +22,7 @@ import UtilizationHistory from "@/components/UtilizationHistory";
 import UtilizationSummary from "@/components/UtilizationSummary";
 import BusinessStatusBadge from "@/components/BusinessStatusBadge";
 import StatusToggleForm from "@/components/StatusToggleForm";
+import DeviceAllocationCard from "@/components/DeviceAllocationCard";
 
 export default async function BusinessDetailPage({
   params,
@@ -39,6 +45,7 @@ export default async function BusinessDetailPage({
   const avgRecorded = averageHours(
     business.checkIns.map((c) => c.recordingsCount),
   );
+  const effectiveDevices = effectiveDevicesForBusiness(business);
 
   return (
     <main className="mx-auto w-full max-w-2xl flex-1 px-6 py-10">
@@ -82,6 +89,22 @@ export default async function BusinessDetailPage({
           </form>
         </div>
       </div>
+
+      <section className="mt-8">
+        <h2 className="text-sm font-semibold tracking-wide text-zinc-500 uppercase">
+          Device allocation
+        </h2>
+        <div className="mt-3">
+          <DeviceAllocationCard
+            id={business.id}
+            issuedMonoCount={business.issuedMonoCount}
+            issuedMulticamCount={business.issuedMulticamCount}
+            defectiveMonoCount={business.defectiveMonoCount}
+            defectiveMulticamCount={business.defectiveMulticamCount}
+            action={updateBusinessDevices}
+          />
+        </div>
+      </section>
 
       <section className="mt-8">
         <h2 className="text-sm font-semibold tracking-wide text-zinc-500 uppercase">
@@ -132,7 +155,10 @@ export default async function BusinessDetailPage({
           Utilization summary
         </h2>
         <div className="mt-3">
-          <UtilizationSummary entries={business.utilizationEntries} />
+          <UtilizationSummary
+            entries={business.utilizationEntries}
+            effectiveDevices={effectiveDevices}
+          />
         </div>
       </section>
 
@@ -147,6 +173,7 @@ export default async function BusinessDetailPage({
             deleteAction={deleteUtilizationEntry}
             editBasePath="/businesses"
             isAdmin={isAdmin}
+            effectiveDevices={effectiveDevices}
           />
         </div>
       </section>

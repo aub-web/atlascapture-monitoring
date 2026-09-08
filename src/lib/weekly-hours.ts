@@ -155,11 +155,14 @@ export type WeekBucket = {
   weekStart: Date;
   label: string;
   hoursByBusiness: Record<string, number>;
-  devicesByBusiness: Record<string, number>;
 };
 
 // All Sunday-Saturday weeks present in the data, each broken down per
-// business — used to drive the multi-series weekly chart.
+// business — used to drive the multi-series weekly chart. Device counts
+// aren't tracked per week here — utilization is measured against each
+// business's fixed issued/defective device counts (see
+// effectiveDevicesForBusiness in lib/utilization.ts), not whatever was
+// logged that week.
 export function groupWeeklyByBusiness(entries: WeeklyEntry[]): WeekBucket[] {
   const map = new Map<number, WeekBucket>();
   for (const e of entries) {
@@ -171,15 +174,12 @@ export function groupWeeklyByBusiness(entries: WeeklyEntry[]): WeekBucket[] {
         weekStart: start,
         label: formatWeekLabel(start),
         hoursByBusiness: {},
-        devicesByBusiness: {},
       };
       map.set(key, bucket);
     }
     bucket.hoursByBusiness[e.businessId] = round1(
       (bucket.hoursByBusiness[e.businessId] ?? 0) + e.recordedHours,
     );
-    bucket.devicesByBusiness[e.businessId] =
-      (bucket.devicesByBusiness[e.businessId] ?? 0) + e.deviceCount;
   }
   return Array.from(map.values()).sort(
     (a, b) => a.weekStart.getTime() - b.weekStart.getTime(),

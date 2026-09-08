@@ -31,6 +31,14 @@ model Business {
   status           String   @default("ACTIVE")
   qcFeedback       String?
   remarks          String?
+  // Devices issued to this business, by type, and how many of those are
+  // currently defective. Utilization capacity is (issued - defective) *
+  // HOURS_PER_DEVICE, not whatever count is typed into a given day's
+  // utilization entry — see src/lib/utilization.ts.
+  issuedMonoCount        Int      @default(0)
+  issuedMulticamCount    Int      @default(0)
+  defectiveMonoCount     Int      @default(0)
+  defectiveMulticamCount Int      @default(0)
   createdAt        DateTime @default(now())
 
   checkIns           CheckIn[]
@@ -112,6 +120,11 @@ model SalesBusiness {
   status     String   @default("ACTIVE")
   qcFeedback String?
   remarks    String?
+  // See the matching comment on Business — same issued/defective model.
+  issuedMonoCount        Int      @default(0)
+  issuedMulticamCount    Int      @default(0)
+  defectiveMonoCount     Int      @default(0)
+  defectiveMulticamCount Int      @default(0)
   createdAt  DateTime @default(now())
 
   utilizationEntries SalesUtilizationEntry[]

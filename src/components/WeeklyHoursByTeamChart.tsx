@@ -13,7 +13,7 @@ import {
 } from "recharts";
 import type { WeekBucket } from "@/lib/weekly-hours";
 
-type BusinessRef = { id: string; name: string };
+type BusinessRef = { id: string; name: string; effectiveDeviceTotal: number };
 
 function colorForId(id: string): string {
   let hash = 0;
@@ -59,7 +59,7 @@ export default function WeeklyHoursByTeamChart({
         const hours = week.hoursByBusiness[b.id] ?? 0;
         row[b.id] = hours;
         combinedHours += hours;
-        combinedDevices += week.devicesByBusiness[b.id] ?? 0;
+        combinedDevices += b.effectiveDeviceTotal;
       }
       row.combinedHours = round1(combinedHours);
       row.utilization = combinedDevices > 0 ? round1(combinedHours / combinedDevices) : 0;
@@ -150,7 +150,7 @@ export default function WeeklyHoursByTeamChart({
                 orientation="right"
                 tick={{ fontSize: 11 }}
                 label={{
-                  value: "Utilization (hrs/device)",
+                  value: "Utilization (hrs/issued device)",
                   angle: 90,
                   position: "insideRight",
                   style: { fontSize: 11, fill: "#71717a" },
@@ -160,7 +160,7 @@ export default function WeeklyHoursByTeamChart({
                 formatter={(value, name) => {
                   const label =
                     name === "utilization"
-                      ? "Utilization (hrs/device)"
+                      ? "Utilization (hrs/issued device)"
                       : name === "combinedHours"
                         ? "Combined total"
                         : (businesses.find((b) => b.id === name)?.name ??
@@ -172,7 +172,7 @@ export default function WeeklyHoursByTeamChart({
                 wrapperStyle={{ fontSize: 11 }}
                 formatter={(value: string) =>
                   value === "utilization"
-                    ? "Utilization (hrs/device)"
+                    ? "Utilization (hrs/issued device)"
                     : value === "combinedHours"
                       ? "Combined total"
                       : businesses.find((b) => b.id === value)?.name ?? value

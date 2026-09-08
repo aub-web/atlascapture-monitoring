@@ -4,11 +4,13 @@ import { getSalesBusinessWithUtilization } from "@/lib/sales-data";
 import {
   deleteSalesBusiness,
   updateSalesBusinessStatus,
+  updateSalesBusinessDevices,
 } from "@/lib/actions/sales-business-actions";
 import {
   createSalesUtilizationEntry,
   deleteSalesUtilizationEntry,
 } from "@/lib/actions/sales-utilization-actions";
+import { effectiveDevicesForBusiness } from "@/lib/utilization";
 import ConfirmSubmitButton from "@/components/ConfirmSubmitButton";
 import UtilizationForm from "@/components/UtilizationForm";
 import UtilizationHistory from "@/components/UtilizationHistory";
@@ -16,6 +18,7 @@ import UtilizationSummary from "@/components/UtilizationSummary";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
 import BusinessStatusBadge from "@/components/BusinessStatusBadge";
 import StatusToggleForm from "@/components/StatusToggleForm";
+import DeviceAllocationCard from "@/components/DeviceAllocationCard";
 
 export default async function SalesBusinessDetailPage({
   params,
@@ -31,6 +34,8 @@ export default async function SalesBusinessDetailPage({
   if (!business) {
     notFound();
   }
+
+  const effectiveDevices = effectiveDevicesForBusiness(business);
 
   return (
     <main className="mx-auto w-full max-w-2xl flex-1 px-6 py-10">
@@ -75,6 +80,22 @@ export default async function SalesBusinessDetailPage({
 
       <section className="mt-8">
         <h2 className="text-sm font-semibold tracking-wide text-zinc-500 uppercase">
+          Device allocation
+        </h2>
+        <div className="mt-3">
+          <DeviceAllocationCard
+            id={business.id}
+            issuedMonoCount={business.issuedMonoCount}
+            issuedMulticamCount={business.issuedMulticamCount}
+            defectiveMonoCount={business.defectiveMonoCount}
+            defectiveMulticamCount={business.defectiveMulticamCount}
+            action={updateSalesBusinessDevices}
+          />
+        </div>
+      </section>
+
+      <section className="mt-8">
+        <h2 className="text-sm font-semibold tracking-wide text-zinc-500 uppercase">
           Log device utilization
         </h2>
         <div className="mt-3 rounded-lg border border-zinc-200 bg-white p-4">
@@ -91,7 +112,10 @@ export default async function SalesBusinessDetailPage({
           Utilization summary
         </h2>
         <div className="mt-3">
-          <UtilizationSummary entries={business.utilizationEntries} />
+          <UtilizationSummary
+            entries={business.utilizationEntries}
+            effectiveDevices={effectiveDevices}
+          />
         </div>
       </section>
 
@@ -106,6 +130,7 @@ export default async function SalesBusinessDetailPage({
             deleteAction={deleteSalesUtilizationEntry}
             editBasePath="/sales/businesses"
             isAdmin={isAdmin}
+            effectiveDevices={effectiveDevices}
           />
         </div>
       </section>

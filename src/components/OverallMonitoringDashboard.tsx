@@ -53,7 +53,7 @@ export default function OverallMonitoringDashboard({
   salesBusinesses: SalesBusiness[];
   outboundEntries: OutboundEntry[];
   salesEntries: SalesEntry[];
-  allTeams: { id: string; name: string }[];
+  allTeams: { id: string; name: string; effectiveDeviceTotal: number }[];
   notesAction: (formData: FormData) => Promise<void>;
   salesNotesAction: (formData: FormData) => Promise<void>;
 }) {
@@ -246,8 +246,8 @@ export default function OverallMonitoringDashboard({
         </h2>
         <p className="mt-1 text-xs text-zinc-400">
           Lines = total hours per business per week. Dashed line =
-          utilization (total hours ÷ number of devices) across selected
-          businesses.
+          utilization (total hours ÷ issued devices, net of defective) across
+          selected businesses.
         </p>
         <div className="mt-3">
           <WeeklyHoursByTeamChart weeks={weeklyByBusiness} businesses={activeTeams} />

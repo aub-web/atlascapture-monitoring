@@ -1,7 +1,7 @@
 import Link from "next/link";
 import {
   HOURS_PER_DEVICE,
-  utilizationHoursForEntry,
+  capacityHoursForDeviceType,
   actionForGap,
 } from "@/lib/utilization";
 import { deviceTypeLabel } from "@/lib/constants";
@@ -18,6 +18,7 @@ type Business = {
   id: string;
   name: string;
   latestEntry: Entry | null;
+  effectiveDevices: Record<string, number>;
 };
 
 function round2(value: number): number {
@@ -45,7 +46,7 @@ export default function DailyUtilizationTracker({
         <thead>
           <tr className="border-b border-zinc-200 text-xs text-zinc-500">
             <th className="px-4 py-2 font-medium">Business</th>
-            <th className="px-4 py-2 font-medium">Devices</th>
+            <th className="px-4 py-2 font-medium">Issued Devices</th>
             <th className="px-4 py-2 font-medium">Target Hrs/Device</th>
             <th className="px-4 py-2 font-medium">Actual Hrs</th>
             <th className="px-4 py-2 font-medium">Gap</th>
@@ -84,9 +85,10 @@ export default function DailyUtilizationTracker({
             }
 
             const targetPerDevice = HOURS_PER_DEVICE[entry.deviceType] ?? 0;
-            const capacityHours = utilizationHoursForEntry(
+            const issuedForType = business.effectiveDevices[entry.deviceType] ?? 0;
+            const capacityHours = capacityHoursForDeviceType(
+              business.effectiveDevices,
               entry.deviceType,
-              entry.deviceCount,
             );
             const gap = round2(entry.recordedHours - capacityHours);
             const action = actionForGap(gap);
@@ -98,7 +100,7 @@ export default function DailyUtilizationTracker({
               >
                 {nameCell}
                 <td className="px-4 py-2 text-zinc-600">
-                  {entry.deviceCount} ({deviceTypeLabel(entry.deviceType)})
+                  {issuedForType} ({deviceTypeLabel(entry.deviceType)})
                 </td>
                 <td className="px-4 py-2 text-zinc-600">{targetPerDevice}h</td>
                 <td className="px-4 py-2 text-zinc-600">{entry.recordedHours}h</td>

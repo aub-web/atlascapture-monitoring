@@ -2,7 +2,7 @@ import Link from "next/link";
 import { formatDate } from "@/lib/date";
 import { deviceTypeLabel } from "@/lib/constants";
 import {
-  utilizationHoursForEntry,
+  capacityHoursForDeviceType,
   utilizationPercent,
   actionForGap,
 } from "@/lib/utilization";
@@ -33,12 +33,14 @@ export default function UtilizationHistory({
   deleteAction,
   editBasePath,
   isAdmin = false,
+  effectiveDevices,
 }: {
   businessId: string;
   entries: Entry[];
   deleteAction: (formData: FormData) => Promise<void>;
   editBasePath: string;
   isAdmin?: boolean;
+  effectiveDevices: Record<string, number>;
 }) {
   if (entries.length === 0) {
     return (
@@ -51,9 +53,9 @@ export default function UtilizationHistory({
   return (
     <ul className="space-y-2">
       {entries.map((entry) => {
-        const capacityHours = utilizationHoursForEntry(
+        const capacityHours = capacityHoursForDeviceType(
+          effectiveDevices,
           entry.deviceType,
-          entry.deviceCount,
         );
         const percent = utilizationPercent(entry.recordedHours, capacityHours);
         const gap = round2(entry.recordedHours - capacityHours);

@@ -19,13 +19,15 @@ function DeviceTypePanel({
   label,
   entries,
   period,
+  effectiveDevices,
 }: {
   label: string;
   entries: UtilizationEntryLike[];
   period: UtilizationPeriod;
+  effectiveDevices: Record<string, number>;
 }) {
-  const buckets = groupUtilization(entries, period);
-  const totals = totalUtilization(entries);
+  const buckets = groupUtilization(entries, period, effectiveDevices);
+  const totals = totalUtilization(entries, effectiveDevices);
   const allTimePercent = utilizationPercent(totals.recordedHours, totals.totalHours);
 
   return (
@@ -95,8 +97,10 @@ function DeviceTypePanel({
 
 export default function UtilizationSummary({
   entries,
+  effectiveDevices,
 }: {
   entries: UtilizationEntryLike[];
+  effectiveDevices: Record<string, number>;
 }) {
   const [period, setPeriod] = useState<UtilizationPeriod>("daily");
   const monoEntries = entries.filter((e) => e.deviceType === "MONO");
@@ -121,11 +125,17 @@ export default function UtilizationSummary({
         ))}
       </div>
 
-      <DeviceTypePanel label="Mono" entries={monoEntries} period={period} />
+      <DeviceTypePanel
+        label="Mono"
+        entries={monoEntries}
+        period={period}
+        effectiveDevices={effectiveDevices}
+      />
       <DeviceTypePanel
         label="Multicam"
         entries={multicamEntries}
         period={period}
+        effectiveDevices={effectiveDevices}
       />
     </div>
   );

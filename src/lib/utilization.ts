@@ -14,6 +14,41 @@ export function utilizationHoursForEntry(
   return deviceCount * (HOURS_PER_DEVICE[deviceType] ?? 0);
 }
 
+// Devices that are issued but currently defective don't count toward
+// capacity.
+export function effectiveDeviceCount(issued: number, defective: number): number {
+  return Math.max(0, issued - defective);
+}
+
+export type BusinessDeviceCounts = {
+  issuedMonoCount: number;
+  issuedMulticamCount: number;
+  defectiveMonoCount: number;
+  defectiveMulticamCount: number;
+};
+
+// Fixed, business-level device counts (issued minus defective), independent
+// of whatever count is typed into any single utilization entry — this is
+// what utilization capacity is measured against.
+export function effectiveDevicesForBusiness(
+  business: BusinessDeviceCounts,
+): Record<string, number> {
+  return {
+    MONO: effectiveDeviceCount(business.issuedMonoCount, business.defectiveMonoCount),
+    MULTICAM: effectiveDeviceCount(
+      business.issuedMulticamCount,
+      business.defectiveMulticamCount,
+    ),
+  };
+}
+
+export function capacityHoursForDeviceType(
+  effectiveDevices: Record<string, number>,
+  deviceType: string,
+): number {
+  return (effectiveDevices[deviceType] ?? 0) * (HOURS_PER_DEVICE[deviceType] ?? 0);
+}
+
 function round1(value: number): number {
   return Math.round(value * 10) / 10;
 }
@@ -110,13 +145,14 @@ function bucketLabel(start: Date, period: UtilizationPeriod): string {
 export function groupUtilization(
   entries: UtilizationEntryLike[],
   period: UtilizationPeriod,
+  effectiveDevices: Record<string, number> = {},
 ): UtilizationBucket[] {
   const buckets = new Map<number, UtilizationBucket>();
 
   for (const entry of entries) {
     const start = bucketStart(entry.date, period);
     const key = start.getTime();
-    const hours = utilizationHoursForEntry(entry.deviceType, entry.deviceCount);
+    const hours = capacityHoursForDeviceType(effectiveDevices, entry.deviceType);
     const isMulticam = entry.deviceType === "MULTICAM";
 
     const existing = buckets.get(key);
@@ -142,7 +178,10 @@ export function groupUtilization(
     .sort((a, b) => b.start.getTime() - a.start.getTime());
 }
 
-export function totalUtilization(entries: UtilizationEntryLike[]): {
+export function totalUtilization(
+  entries: UtilizationEntryLike[],
+  effectiveDevices: Record<string, number> = {},
+): {
   monoHours: number;
   multicamHours: number;
   totalHours: number;
@@ -152,7 +191,7 @@ export function totalUtilization(entries: UtilizationEntryLike[]): {
   let multicamHours = 0;
   let recordedHours = 0;
   for (const entry of entries) {
-    const hours = utilizationHoursForEntry(entry.deviceType, entry.deviceCount);
+    const hours = capacityHoursForDeviceType(effectiveDevices, entry.deviceType);
     if (entry.deviceType === "MULTICAM") multicamHours += hours;
     else monoHours += hours;
     recordedHours += entry.recordedHours;

@@ -8,7 +8,18 @@ import {
 } from "@/lib/sales-data";
 import { updateBusinessNotes } from "@/lib/actions/business-actions";
 import { updateSalesBusinessNotes } from "@/lib/actions/sales-business-actions";
+import { effectiveDevicesForBusiness } from "@/lib/utilization";
 import OverallMonitoringDashboard from "@/components/OverallMonitoringDashboard";
+
+function effectiveDeviceTotal(business: {
+  issuedMonoCount: number;
+  issuedMulticamCount: number;
+  defectiveMonoCount: number;
+  defectiveMulticamCount: number;
+}): number {
+  const effective = effectiveDevicesForBusiness(business);
+  return (effective.MONO ?? 0) + (effective.MULTICAM ?? 0);
+}
 
 // Always show live data — never freeze this dashboard as a static build-time
 // snapshot.
@@ -24,8 +35,16 @@ export default async function OverallMonitoringPage() {
     ]);
 
   const allTeams = [
-    ...businesses.map((b) => ({ id: b.id, name: b.name })),
-    ...salesBusinesses.map((b) => ({ id: b.id, name: b.name })),
+    ...businesses.map((b) => ({
+      id: b.id,
+      name: b.name,
+      effectiveDeviceTotal: effectiveDeviceTotal(b),
+    })),
+    ...salesBusinesses.map((b) => ({
+      id: b.id,
+      name: b.name,
+      effectiveDeviceTotal: effectiveDeviceTotal(b),
+    })),
   ].sort((a, b) => a.name.localeCompare(b.name));
 
   return (
