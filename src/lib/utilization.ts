@@ -31,30 +31,62 @@ export type BusinessDeviceCounts = {
   defectiveMonoInsta360Count: number;
 };
 
-// Fixed, business-level device counts (issued minus defective), independent
-// of whatever count is typed into any single utilization entry — this is
-// what utilization capacity is measured against.
-export function effectiveDevicesForBusiness(
-  business: BusinessDeviceCounts,
-): Record<string, number> {
-  return {
-    MONO: effectiveDeviceCount(business.issuedMonoCount, business.defectiveMonoCount),
-    MULTICAM: effectiveDeviceCount(
-      business.issuedMulticamCount,
-      business.defectiveMulticamCount,
-    ),
-    MONO_INSTA360: effectiveDeviceCount(
-      business.issuedMonoInsta360Count,
-      business.defectiveMonoInsta360Count,
-    ),
-  };
-}
-
 export function capacityHoursForDeviceType(
   effectiveDevices: Record<string, number>,
   deviceType: string,
 ): number {
   return (effectiveDevices[deviceType] ?? 0) * (HOURS_PER_DEVICE[deviceType] ?? 0);
+}
+
+// A record of what issued/defective counts were in effect for one device
+// type as of effectiveAt — see the DeviceCountSnapshot/SalesDeviceCountSnapshot
+// Prisma models, written whenever DeviceAllocationCard saves a change.
+export type DeviceSnapshot = {
+  deviceType: string;
+  issuedCount: number;
+  defectiveCount: number;
+  effectiveAt: Date;
+};
+
+// What was issued (minus defective) per device type as of `date` — the
+// latest snapshot at or before that date, per type. Used so a historical
+// period's target reflects what was actually issued then, not today's
+// count (a business that ramped up from 4 to 18 devices shouldn't have
+// last month's weeks judged against 18).
+export function effectiveDevicesAt(
+  snapshots: DeviceSnapshot[],
+  date: Date,
+): Record<string, number> {
+  const latestByType = new Map<string, DeviceSnapshot>();
+  for (const snapshot of snapshots) {
+    if (snapshot.effectiveAt > date) continue;
+    const current = latestByType.get(snapshot.deviceType);
+    if (!current || snapshot.effectiveAt > current.effectiveAt) {
+      latestByType.set(snapshot.deviceType, snapshot);
+    }
+  }
+  const result: Record<string, number> = {};
+  for (const [deviceType, snapshot] of latestByType) {
+    result[deviceType] = effectiveDeviceCount(
+      snapshot.issuedCount,
+      snapshot.defectiveCount,
+    );
+  }
+  return result;
+}
+
+// This business's fixed weekly target (summed across device types) as of
+// the given week's start — see effectiveDevicesAt.
+export function weeklyTargetHoursAt(
+  snapshots: DeviceSnapshot[],
+  weekStart: Date,
+): number {
+  const effective = effectiveDevicesAt(snapshots, weekStart);
+  return Object.keys(effective).reduce(
+    (sum, type) =>
+      sum + capacityHoursForDeviceType(effective, type) * WORK_DAYS_PER_WEEK,
+    0,
+  );
 }
 
 function round1(value: number): number {
@@ -184,11 +216,14 @@ function bucketLabel(start: Date, period: UtilizationPeriod): string {
 // devices × hours/device × work days in that day/week/month), not by how
 // many days within it actually have a logged entry — a week with only one
 // entry still carries the full weekly target, so idle days show up as a
-// shortfall rather than shrinking the goalpost.
+// shortfall rather than shrinking the goalpost. The device count used is
+// whatever was in effect (per effectiveDevicesAt) as of the bucket's start,
+// so a business's device ramp-up over time doesn't retroactively inflate
+// the target for weeks/months before it happened.
 export function groupUtilization(
   entries: UtilizationEntryLike[],
   period: UtilizationPeriod,
-  effectiveDevices: Record<string, number> = {},
+  snapshots: DeviceSnapshot[] = [],
 ): UtilizationBucket[] {
   const drafts = new Map<
     number,
@@ -214,6 +249,7 @@ export function groupUtilization(
   return Array.from(drafts.values())
     .map((draft) => {
       const days = workDaysForPeriod(period, draft.start);
+      const effectiveDevices = effectiveDevicesAt(snapshots, draft.start);
       let totalHours = 0;
       for (const type of draft.types) {
         totalHours += capacityHoursForDeviceType(effectiveDevices, type) * days;
@@ -229,10 +265,11 @@ export function groupUtilization(
 }
 
 // All-time total: each logged day contributes one day's worth of target
-// (no fixed calendar period to apply a work-week multiplier to).
+// (no fixed calendar period to apply a work-week multiplier to), based on
+// whatever was issued as of that entry's own date.
 export function totalUtilization(
   entries: UtilizationEntryLike[],
-  effectiveDevices: Record<string, number> = {},
+  snapshots: DeviceSnapshot[] = [],
 ): {
   totalHours: number;
   recordedHours: number;
@@ -240,6 +277,7 @@ export function totalUtilization(
   let totalHours = 0;
   let recordedHours = 0;
   for (const entry of entries) {
+    const effectiveDevices = effectiveDevicesAt(snapshots, entry.date);
     totalHours += capacityHoursForDeviceType(effectiveDevices, entry.deviceType);
     recordedHours += entry.recordedHours;
   }

@@ -10,7 +10,6 @@ import {
   createSalesUtilizationEntry,
   deleteSalesUtilizationEntry,
 } from "@/lib/actions/sales-utilization-actions";
-import { effectiveDevicesForBusiness } from "@/lib/utilization";
 import ConfirmSubmitButton from "@/components/ConfirmSubmitButton";
 import UtilizationForm from "@/components/UtilizationForm";
 import UtilizationHistory from "@/components/UtilizationHistory";
@@ -34,8 +33,6 @@ export default async function SalesBusinessDetailPage({
   if (!business) {
     notFound();
   }
-
-  const effectiveDevices = effectiveDevicesForBusiness(business);
 
   return (
     <main className="mx-auto w-full max-w-2xl flex-1 px-6 py-10">
@@ -111,7 +108,7 @@ export default async function SalesBusinessDetailPage({
         <div className="mt-3">
           <UtilizationSummary
             entries={business.utilizationEntries}
-            effectiveDevices={effectiveDevices}
+            snapshots={business.deviceCountHistory}
           />
         </div>
       </section>
@@ -127,7 +124,7 @@ export default async function SalesBusinessDetailPage({
             deleteAction={deleteSalesUtilizationEntry}
             editBasePath="/sales/businesses"
             isAdmin={isAdmin}
-            effectiveDevices={effectiveDevices}
+            snapshots={business.deviceCountHistory}
           />
         </div>
       </section>

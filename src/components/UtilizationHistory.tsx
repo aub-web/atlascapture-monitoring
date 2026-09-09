@@ -3,8 +3,10 @@ import { formatDate } from "@/lib/date";
 import { deviceTypeLabel } from "@/lib/constants";
 import {
   capacityHoursForDeviceType,
+  effectiveDevicesAt,
   utilizationPercent,
   actionForGap,
+  type DeviceSnapshot,
 } from "@/lib/utilization";
 import ConfirmSubmitButton from "@/components/ConfirmSubmitButton";
 import RecordingStatusBadge from "@/components/RecordingStatusBadge";
@@ -33,14 +35,14 @@ export default function UtilizationHistory({
   deleteAction,
   editBasePath,
   isAdmin = false,
-  effectiveDevices,
+  snapshots,
 }: {
   businessId: string;
   entries: Entry[];
   deleteAction: (formData: FormData) => Promise<void>;
   editBasePath: string;
   isAdmin?: boolean;
-  effectiveDevices: Record<string, number>;
+  snapshots: DeviceSnapshot[];
 }) {
   if (entries.length === 0) {
     return (
@@ -54,7 +56,7 @@ export default function UtilizationHistory({
     <ul className="space-y-2">
       {entries.map((entry) => {
         const capacityHours = capacityHoursForDeviceType(
-          effectiveDevices,
+          effectiveDevicesAt(snapshots, entry.date),
           entry.deviceType,
         );
         const percent = utilizationPercent(entry.recordedHours, capacityHours);

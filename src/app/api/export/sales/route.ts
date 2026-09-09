@@ -8,7 +8,7 @@ import {
 import { formatDate } from "@/lib/date";
 import {
   capacityHoursForDeviceType,
-  effectiveDevicesForBusiness,
+  effectiveDevicesAt,
   utilizationPercent,
 } from "@/lib/utilization";
 import { toCsv } from "@/lib/csv";
@@ -16,7 +16,10 @@ import { toCsv } from "@/lib/csv";
 export async function GET() {
   const businesses = await prisma.salesBusiness.findMany({
     orderBy: { name: "asc" },
-    include: { utilizationEntries: { orderBy: { date: "asc" } } },
+    include: {
+      utilizationEntries: { orderBy: { date: "asc" } },
+      deviceCountHistory: true,
+    },
   });
 
   const header = [
@@ -37,8 +40,11 @@ export async function GET() {
   ];
 
   const rows = businesses.flatMap((business) => {
-    const effectiveDevices = effectiveDevicesForBusiness(business);
     return business.utilizationEntries.map((entry) => {
+      const effectiveDevices = effectiveDevicesAt(
+        business.deviceCountHistory,
+        entry.date,
+      );
       const capacityHours = capacityHoursForDeviceType(
         effectiveDevices,
         entry.deviceType,

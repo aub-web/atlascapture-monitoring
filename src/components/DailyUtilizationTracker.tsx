@@ -2,7 +2,9 @@ import Link from "next/link";
 import {
   HOURS_PER_DEVICE,
   capacityHoursForDeviceType,
+  effectiveDevicesAt,
   actionForGap,
+  type DeviceSnapshot,
 } from "@/lib/utilization";
 import { deviceTypeLabel } from "@/lib/constants";
 import { formatDate } from "@/lib/date";
@@ -18,7 +20,7 @@ type Business = {
   id: string;
   name: string;
   latestEntry: Entry | null;
-  effectiveDevices: Record<string, number>;
+  snapshots: DeviceSnapshot[];
 };
 
 function round2(value: number): number {
@@ -85,9 +87,13 @@ export default function DailyUtilizationTracker({
             }
 
             const targetPerDevice = HOURS_PER_DEVICE[entry.deviceType] ?? 0;
-            const issuedForType = business.effectiveDevices[entry.deviceType] ?? 0;
+            const effectiveDevices = effectiveDevicesAt(
+              business.snapshots,
+              entry.date,
+            );
+            const issuedForType = effectiveDevices[entry.deviceType] ?? 0;
             const capacityHours = capacityHoursForDeviceType(
-              business.effectiveDevices,
+              effectiveDevices,
               entry.deviceType,
             );
             const gap = round2(entry.recordedHours - capacityHours);

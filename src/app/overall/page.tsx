@@ -8,25 +8,7 @@ import {
 } from "@/lib/sales-data";
 import { updateBusinessNotes } from "@/lib/actions/business-actions";
 import { updateSalesBusinessNotes } from "@/lib/actions/sales-business-actions";
-import {
-  effectiveDevicesForBusiness,
-  capacityHoursForDeviceType,
-  WORK_DAYS_PER_WEEK,
-  type BusinessDeviceCounts,
-} from "@/lib/utilization";
-import { DEVICE_TYPES } from "@/lib/constants";
 import OverallMonitoringDashboard from "@/components/OverallMonitoringDashboard";
-
-// # of devices × hours/device × 6 work days = this business's fixed weekly
-// target, summed across all its device types.
-function weeklyTargetHours(business: BusinessDeviceCounts): number {
-  const effective = effectiveDevicesForBusiness(business);
-  return DEVICE_TYPES.reduce(
-    (sum, type) =>
-      sum + capacityHoursForDeviceType(effective, type.value) * WORK_DAYS_PER_WEEK,
-    0,
-  );
-}
 
 // Always show live data — never freeze this dashboard as a static build-time
 // snapshot.
@@ -45,12 +27,12 @@ export default async function OverallMonitoringPage() {
     ...businesses.map((b) => ({
       id: b.id,
       name: b.name,
-      weeklyTargetHours: weeklyTargetHours(b),
+      snapshots: b.deviceCountHistory,
     })),
     ...salesBusinesses.map((b) => ({
       id: b.id,
       name: b.name,
-      weeklyTargetHours: weeklyTargetHours(b),
+      snapshots: b.deviceCountHistory,
     })),
   ].sort((a, b) => a.name.localeCompare(b.name));
 

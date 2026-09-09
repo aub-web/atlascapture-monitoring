@@ -5,6 +5,7 @@ export function getSalesBusinessesWithUtilization() {
     orderBy: { name: "asc" },
     include: {
       utilizationEntries: { orderBy: { date: "desc" } },
+      deviceCountHistory: true,
       _count: { select: { utilizationEntries: true } },
     },
   });
@@ -39,6 +40,7 @@ export function getSalesBusinessWithUtilization(id: string) {
     where: { id },
     include: {
       utilizationEntries: { orderBy: { date: "desc" } },
+      deviceCountHistory: true,
     },
   });
 }

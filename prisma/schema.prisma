@@ -45,10 +45,31 @@ model Business {
 
   checkIns           CheckIn[]
   utilizationEntries UtilizationEntry[]
+  deviceCountHistory DeviceCountSnapshot[]
 
   @@index([category])
   @@index([partnerAssociate])
   @@index([status])
+}
+
+// A record of what issued/defective counts were in effect for one device
+// type as of effectiveAt, so historical utilization periods are judged
+// against what was actually issued at the time rather than today's count.
+// Written every time DeviceAllocationCard saves a change — see
+// updateBusinessDevices in src/lib/actions/business-actions.ts.
+model DeviceCountSnapshot {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  deviceType     String
+  issuedCount    Int
+  defectiveCount Int
+  effectiveAt    DateTime
+
+  createdAt DateTime @default(now())
+
+  @@index([businessId, deviceType, effectiveAt])
 }
 
 model CheckIn {
@@ -132,9 +153,27 @@ model SalesBusiness {
   createdAt  DateTime @default(now())
 
   utilizationEntries SalesUtilizationEntry[]
+  deviceCountHistory SalesDeviceCountSnapshot[]
 
   @@index([salesAgent])
   @@index([status])
+}
+
+// See the matching comment on DeviceCountSnapshot — same model, for Sales
+// Monitoring businesses.
+model SalesDeviceCountSnapshot {
+  id         String        @id @default(cuid())
+  businessId String
+  business   SalesBusiness @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  deviceType     String
+  issuedCount    Int
+  defectiveCount Int
+  effectiveAt    DateTime
+
+  createdAt DateTime @default(now())
+
+  @@index([businessId, deviceType, effectiveAt])
 }
 
 model SalesUtilizationEntry {

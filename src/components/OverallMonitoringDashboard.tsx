@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import type { getBusinessesWithLatestCheckIn } from "@/lib/data";
 import type { getSalesBusinessesWithUtilization } from "@/lib/sales-data";
+import type { DeviceSnapshot } from "@/lib/utilization";
 import {
   weekOverWeek,
   groupWeeklyByBusiness,
@@ -53,7 +54,7 @@ export default function OverallMonitoringDashboard({
   salesBusinesses: SalesBusiness[];
   outboundEntries: OutboundEntry[];
   salesEntries: SalesEntry[];
-  allTeams: { id: string; name: string; weeklyTargetHours: number }[];
+  allTeams: { id: string; name: string; snapshots: DeviceSnapshot[] }[];
   notesAction: (formData: FormData) => Promise<void>;
   salesNotesAction: (formData: FormData) => Promise<void>;
 }) {

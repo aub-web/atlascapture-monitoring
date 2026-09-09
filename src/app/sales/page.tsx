@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { getSalesBusinessesWithUtilization } from "@/lib/sales-data";
-import { effectiveDevicesForBusiness } from "@/lib/utilization";
 import { updateSalesBusinessNotes } from "@/lib/actions/sales-business-actions";
 import SalesBusinessSummaryTable from "@/components/SalesBusinessSummaryTable";
 import DailyUtilizationTracker from "@/components/DailyUtilizationTracker";
@@ -84,7 +83,7 @@ export default async function SalesMonitoringHome() {
               id: b.id,
               name: b.name,
               latestEntry: b.utilizationEntries[0] ?? null,
-              effectiveDevices: effectiveDevicesForBusiness(b),
+              snapshots: b.deviceCountHistory,
             }))}
             detailBasePath="/sales/businesses"
           />

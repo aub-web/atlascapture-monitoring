@@ -160,9 +160,9 @@ export type WeekBucket = {
 // All Sunday-Saturday weeks present in the data, each broken down per
 // business — used to drive the multi-series weekly chart. Device counts
 // aren't tracked per week here — utilization is measured against each
-// business's fixed issued/defective device counts (see
-// effectiveDevicesForBusiness in lib/utilization.ts), not whatever was
-// logged that week.
+// business's issued/defective device counts as of that week (see
+// effectiveDevicesAt in lib/utilization.ts), not whatever was logged that
+// week.
 export function groupWeeklyByBusiness(entries: WeeklyEntry[]): WeekBucket[] {
   const map = new Map<number, WeekBucket>();
   for (const e of entries) {

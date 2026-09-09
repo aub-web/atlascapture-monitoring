@@ -12,8 +12,9 @@ import {
   YAxis,
 } from "recharts";
 import type { WeekBucket } from "@/lib/weekly-hours";
+import { weeklyTargetHoursAt, type DeviceSnapshot } from "@/lib/utilization";
 
-type BusinessRef = { id: string; name: string; weeklyTargetHours: number };
+type BusinessRef = { id: string; name: string; snapshots: DeviceSnapshot[] };
 
 function colorForId(id: string): string {
   let hash = 0;
@@ -59,7 +60,7 @@ export default function WeeklyHoursByTeamChart({
         const hours = week.hoursByBusiness[b.id] ?? 0;
         row[b.id] = hours;
         combinedHours += hours;
-        combinedTarget += b.weeklyTargetHours;
+        combinedTarget += weeklyTargetHoursAt(b.snapshots, week.weekStart);
       }
       row.combinedHours = round1(combinedHours);
       // Target ÷ Uploaded — a business right on target reads 100%; one

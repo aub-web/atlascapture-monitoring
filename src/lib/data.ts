@@ -15,6 +15,7 @@ export function getBusinessesWithLatestCheckIn() {
         orderBy: { date: "desc" },
         take: 1,
       },
+      deviceCountHistory: true,
       _count: { select: { checkIns: true } },
     },
   });
@@ -54,6 +55,7 @@ export function getBusinessWithCheckIns(id: string) {
     include: {
       checkIns: { orderBy: { checkInDate: "desc" } },
       utilizationEntries: { orderBy: { date: "desc" } },
+      deviceCountHistory: true,
     },
   });
 }

@@ -5,13 +5,13 @@ import {
   groupUtilization,
   totalUtilization,
   utilizationPercent,
+  type DeviceSnapshot,
   type UtilizationEntryLike,
   type UtilizationPeriod,
 } from "@/lib/utilization";
 import { DEVICE_TYPES } from "@/lib/constants";
 
 const PERIODS: { value: UtilizationPeriod; label: string }[] = [
-  { value: "daily", label: "Daily" },
   { value: "weekly", label: "Weekly" },
   { value: "monthly", label: "Monthly" },
 ];
@@ -20,15 +20,15 @@ function DeviceTypePanel({
   label,
   entries,
   period,
-  effectiveDevices,
+  snapshots,
 }: {
   label: string;
   entries: UtilizationEntryLike[];
   period: UtilizationPeriod;
-  effectiveDevices: Record<string, number>;
+  snapshots: DeviceSnapshot[];
 }) {
-  const buckets = groupUtilization(entries, period, effectiveDevices);
-  const totals = totalUtilization(entries, effectiveDevices);
+  const buckets = groupUtilization(entries, period, snapshots);
+  const totals = totalUtilization(entries, snapshots);
   const allTimePercent = utilizationPercent(totals.recordedHours, totals.totalHours);
 
   return (
@@ -98,12 +98,12 @@ function DeviceTypePanel({
 
 export default function UtilizationSummary({
   entries,
-  effectiveDevices,
+  snapshots,
 }: {
   entries: UtilizationEntryLike[];
-  effectiveDevices: Record<string, number>;
+  snapshots: DeviceSnapshot[];
 }) {
-  const [period, setPeriod] = useState<UtilizationPeriod>("daily");
+  const [period, setPeriod] = useState<UtilizationPeriod>("weekly");
 
   return (
     <div className="space-y-6">
@@ -130,7 +130,7 @@ export default function UtilizationSummary({
           label={deviceType.label}
           entries={entries.filter((e) => e.deviceType === deviceType.value)}
           period={period}
-          effectiveDevices={effectiveDevices}
+          snapshots={snapshots}
         />
       ))}
     </div>

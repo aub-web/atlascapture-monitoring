@@ -6,7 +6,7 @@ import { formatDate } from "@/lib/date";
 import {
   totalUtilization,
   utilizationPercent,
-  effectiveDevicesForBusiness,
+  type DeviceSnapshot,
   type UtilizationEntryLike,
 } from "@/lib/utilization";
 import BusinessStatusBadge from "@/components/BusinessStatusBadge";
@@ -19,12 +19,7 @@ type Business = {
   status: string;
   qcFeedback: string | null;
   remarks: string | null;
-  issuedMonoCount: number;
-  issuedMulticamCount: number;
-  issuedMonoInsta360Count: number;
-  defectiveMonoCount: number;
-  defectiveMulticamCount: number;
-  defectiveMonoInsta360Count: number;
+  deviceCountHistory: DeviceSnapshot[];
   utilizationEntries: UtilizationEntryLike[];
 };
 
@@ -97,7 +92,7 @@ export default function SalesBusinessSummaryTable({
                 const latest = business.utilizationEntries[0] ?? null;
                 const totals = totalUtilization(
                   business.utilizationEntries,
-                  effectiveDevicesForBusiness(business),
+                  business.deviceCountHistory,
                 );
                 const percent = utilizationPercent(
                   totals.recordedHours,

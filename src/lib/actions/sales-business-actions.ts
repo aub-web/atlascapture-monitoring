@@ -149,6 +149,14 @@ const DEVICE_COUNT_FIELDS = [
   "defectiveMonoInsta360Count",
 ] as const;
 
+// Maps each pair of count fields to the device type value used by
+// SalesDeviceCountSnapshot — see src/lib/utilization.ts.
+const DEVICE_TYPE_FIELDS = [
+  { type: "MONO", issued: "issuedMonoCount", defective: "defectiveMonoCount" },
+  { type: "MULTICAM", issued: "issuedMulticamCount", defective: "defectiveMulticamCount" },
+  { type: "MONO_INSTA360", issued: "issuedMonoInsta360Count", defective: "defectiveMonoInsta360Count" },
+] as const;
+
 export async function updateSalesBusinessDevices(
   formData: FormData,
 ): Promise<void> {
@@ -165,6 +173,24 @@ export async function updateSalesBusinessDevices(
   if (Object.keys(data).length === 0) return;
 
   const business = await prisma.salesBusiness.update({ where: { id }, data });
+
+  // Snapshot the new issued/defective counts, dated now, for every device
+  // type this edit touched — so past periods stay judged against what was
+  // issued at the time, not this new value. See effectiveDevicesAt.
+  const changedTypes = DEVICE_TYPE_FIELDS.filter(
+    (t) => t.issued in data || t.defective in data,
+  );
+  if (changedTypes.length > 0) {
+    await prisma.salesDeviceCountSnapshot.createMany({
+      data: changedTypes.map((t) => ({
+        businessId: id,
+        deviceType: t.type,
+        issuedCount: business[t.issued],
+        defectiveCount: business[t.defective],
+        effectiveAt: new Date(),
+      })),
+    });
+  }
 
   await logAudit(
     "UPDATE",

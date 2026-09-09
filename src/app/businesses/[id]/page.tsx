@@ -8,7 +8,6 @@ import {
 } from "@/lib/actions/business-actions";
 import { categoryLabel, MONITORING_CADENCE_DAYS } from "@/lib/constants";
 import { averageHours } from "@/lib/hours";
-import { effectiveDevicesForBusiness } from "@/lib/utilization";
 import { isAdminAuthenticated } from "@/lib/admin-auth";
 import {
   createUtilizationEntry,
@@ -45,7 +44,6 @@ export default async function BusinessDetailPage({
   const avgRecorded = averageHours(
     business.checkIns.map((c) => c.recordingsCount),
   );
-  const effectiveDevices = effectiveDevicesForBusiness(business);
 
   return (
     <main className="mx-auto w-full max-w-2xl flex-1 px-6 py-10">
@@ -154,7 +152,7 @@ export default async function BusinessDetailPage({
         <div className="mt-3">
           <UtilizationSummary
             entries={business.utilizationEntries}
-            effectiveDevices={effectiveDevices}
+            snapshots={business.deviceCountHistory}
           />
         </div>
       </section>
@@ -170,7 +168,7 @@ export default async function BusinessDetailPage({
             deleteAction={deleteUtilizationEntry}
             editBasePath="/businesses"
             isAdmin={isAdmin}
-            effectiveDevices={effectiveDevices}
+            snapshots={business.deviceCountHistory}
           />
         </div>
       </section>
