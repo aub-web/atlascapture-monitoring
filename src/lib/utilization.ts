@@ -1,10 +1,12 @@
 // Device count per business, multiplied by a fixed hours-per-device figure,
 // gives the capacity hours for that entry: 6h per Multicam device, 4h per
-// Mono device. recordedHours is the actual hours logged that day, entered by
-// the user — comparing the two gives a utilization percentage.
+// Mono iPhone, 6h per Mono Insta 360. recordedHours is the actual hours
+// logged that day, entered by the user — comparing the two gives a
+// utilization percentage.
 export const HOURS_PER_DEVICE: Record<string, number> = {
   MONO: 4,
   MULTICAM: 6,
+  MONO_INSTA360: 6,
 };
 
 export function utilizationHoursForEntry(
@@ -23,8 +25,10 @@ export function effectiveDeviceCount(issued: number, defective: number): number 
 export type BusinessDeviceCounts = {
   issuedMonoCount: number;
   issuedMulticamCount: number;
+  issuedMonoInsta360Count: number;
   defectiveMonoCount: number;
   defectiveMulticamCount: number;
+  defectiveMonoInsta360Count: number;
 };
 
 // Fixed, business-level device counts (issued minus defective), independent
@@ -38,6 +42,10 @@ export function effectiveDevicesForBusiness(
     MULTICAM: effectiveDeviceCount(
       business.issuedMulticamCount,
       business.defectiveMulticamCount,
+    ),
+    MONO_INSTA360: effectiveDeviceCount(
+      business.issuedMonoInsta360Count,
+      business.defectiveMonoInsta360Count,
     ),
   };
 }
@@ -60,12 +68,15 @@ function round2(value: number): number {
   return Math.round(value * 100) / 100;
 }
 
+// Deliberately Target ÷ Uploaded (not the more common Uploaded ÷ Target) —
+// per the weekly utilization computation spec. A business right on target
+// reads 100%; one that's under target reads above 100%, not below.
 export function utilizationPercent(
   recordedHours: number,
   capacityHours: number,
 ): number | null {
-  if (capacityHours <= 0) return null;
-  return round1((recordedHours / capacityHours) * 100);
+  if (recordedHours <= 0) return null;
+  return round1((capacityHours / recordedHours) * 100);
 }
 
 export type UtilizationAction = {
@@ -98,8 +109,6 @@ export type UtilizationEntryLike = {
 export type UtilizationBucket = {
   label: string;
   start: Date;
-  monoHours: number;
-  multicamHours: number;
   totalHours: number;
   recordedHours: number;
 };
@@ -127,6 +136,35 @@ function bucketStart(date: Date, period: UtilizationPeriod): Date {
   return startOfMonth(date);
 }
 
+// The weekly target is a fixed 5 work days, per the spec, regardless of the
+// calendar — a week with only one entry still carries the full 5-day target.
+export const WORK_DAYS_PER_WEEK = 5;
+
+// Monthly counts actual Mon-Sat days in that calendar month (Sunday is
+// unpaid/off) — hours logged on a Sunday still count toward the recorded
+// total, they just don't add to the baseline target.
+function isWorkDay(date: Date): boolean {
+  return date.getDay() !== 0; // Sunday = 0
+}
+
+function workDaysInMonth(monthStart: Date): number {
+  const year = monthStart.getFullYear();
+  const month = monthStart.getMonth();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  let count = 0;
+  for (let day = 1; day <= daysInMonth; day++) {
+    if (isWorkDay(new Date(year, month, day))) count++;
+  }
+  return count;
+}
+
+// # of devices × hours/device × work days in the period = Target.
+function workDaysForPeriod(period: UtilizationPeriod, start: Date): number {
+  if (period === "daily") return 1;
+  if (period === "weekly") return WORK_DAYS_PER_WEEK;
+  return workDaysInMonth(start);
+}
+
 function bucketLabel(start: Date, period: UtilizationPeriod): string {
   if (period === "monthly") {
     return new Intl.DateTimeFormat("en-US", {
@@ -142,64 +180,71 @@ function bucketLabel(start: Date, period: UtilizationPeriod): string {
   return period === "weekly" ? `Week of ${formatted}` : formatted;
 }
 
+// Target for a bucket is fixed by the calendar period it covers (# of
+// devices × hours/device × work days in that day/week/month), not by how
+// many days within it actually have a logged entry — a week with only one
+// entry still carries the full weekly target, so idle days show up as a
+// shortfall rather than shrinking the goalpost.
 export function groupUtilization(
   entries: UtilizationEntryLike[],
   period: UtilizationPeriod,
   effectiveDevices: Record<string, number> = {},
 ): UtilizationBucket[] {
-  const buckets = new Map<number, UtilizationBucket>();
+  const drafts = new Map<
+    number,
+    { start: Date; recordedHours: number; types: Set<string> }
+  >();
 
   for (const entry of entries) {
     const start = bucketStart(entry.date, period);
     const key = start.getTime();
-    const hours = capacityHoursForDeviceType(effectiveDevices, entry.deviceType);
-    const isMulticam = entry.deviceType === "MULTICAM";
-
-    const existing = buckets.get(key);
-    if (existing) {
-      if (isMulticam) existing.multicamHours += hours;
-      else existing.monoHours += hours;
-      existing.totalHours += hours;
-      existing.recordedHours += entry.recordedHours;
+    const draft = drafts.get(key);
+    if (draft) {
+      draft.recordedHours += entry.recordedHours;
+      draft.types.add(entry.deviceType);
     } else {
-      buckets.set(key, {
-        label: bucketLabel(start, period),
+      drafts.set(key, {
         start,
-        monoHours: isMulticam ? 0 : hours,
-        multicamHours: isMulticam ? hours : 0,
-        totalHours: hours,
         recordedHours: entry.recordedHours,
+        types: new Set([entry.deviceType]),
       });
     }
   }
 
-  return Array.from(buckets.values())
-    .map((bucket) => ({ ...bucket, recordedHours: round2(bucket.recordedHours) }))
+  return Array.from(drafts.values())
+    .map((draft) => {
+      const days = workDaysForPeriod(period, draft.start);
+      let totalHours = 0;
+      for (const type of draft.types) {
+        totalHours += capacityHoursForDeviceType(effectiveDevices, type) * days;
+      }
+      return {
+        label: bucketLabel(draft.start, period),
+        start: draft.start,
+        totalHours,
+        recordedHours: round2(draft.recordedHours),
+      };
+    })
     .sort((a, b) => b.start.getTime() - a.start.getTime());
 }
 
+// All-time total: each logged day contributes one day's worth of target
+// (no fixed calendar period to apply a work-week multiplier to).
 export function totalUtilization(
   entries: UtilizationEntryLike[],
   effectiveDevices: Record<string, number> = {},
 ): {
-  monoHours: number;
-  multicamHours: number;
   totalHours: number;
   recordedHours: number;
 } {
-  let monoHours = 0;
-  let multicamHours = 0;
+  let totalHours = 0;
   let recordedHours = 0;
   for (const entry of entries) {
-    const hours = capacityHoursForDeviceType(effectiveDevices, entry.deviceType);
-    if (entry.deviceType === "MULTICAM") multicamHours += hours;
-    else monoHours += hours;
+    totalHours += capacityHoursForDeviceType(effectiveDevices, entry.deviceType);
     recordedHours += entry.recordedHours;
   }
   return {
-    monoHours,
-    multicamHours,
-    totalHours: monoHours + multicamHours,
+    totalHours,
     recordedHours: round2(recordedHours),
   };
 }

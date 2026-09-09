@@ -21,8 +21,10 @@ type Business = {
   remarks: string | null;
   issuedMonoCount: number;
   issuedMulticamCount: number;
+  issuedMonoInsta360Count: number;
   defectiveMonoCount: number;
   defectiveMulticamCount: number;
+  defectiveMonoInsta360Count: number;
   utilizationEntries: UtilizationEntryLike[];
 };
 

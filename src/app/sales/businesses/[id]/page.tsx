@@ -85,10 +85,7 @@ export default async function SalesBusinessDetailPage({
         <div className="mt-3">
           <DeviceAllocationCard
             id={business.id}
-            issuedMonoCount={business.issuedMonoCount}
-            issuedMulticamCount={business.issuedMulticamCount}
-            defectiveMonoCount={business.defectiveMonoCount}
-            defectiveMulticamCount={business.defectiveMulticamCount}
+            counts={business}
             action={updateSalesBusinessDevices}
           />
         </div>

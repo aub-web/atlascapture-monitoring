@@ -13,7 +13,7 @@ import {
 } from "recharts";
 import type { WeekBucket } from "@/lib/weekly-hours";
 
-type BusinessRef = { id: string; name: string; effectiveDeviceTotal: number };
+type BusinessRef = { id: string; name: string; weeklyTargetHours: number };
 
 function colorForId(id: string): string {
   let hash = 0;
@@ -53,16 +53,19 @@ export default function WeeklyHoursByTeamChart({
     return weeks.map((week) => {
       const row: Record<string, number | string> = { label: week.label };
       let combinedHours = 0;
-      let combinedDevices = 0;
+      let combinedTarget = 0;
       for (const b of businesses) {
         if (!selected.has(b.id)) continue;
         const hours = week.hoursByBusiness[b.id] ?? 0;
         row[b.id] = hours;
         combinedHours += hours;
-        combinedDevices += b.effectiveDeviceTotal;
+        combinedTarget += b.weeklyTargetHours;
       }
       row.combinedHours = round1(combinedHours);
-      row.utilization = combinedDevices > 0 ? round1(combinedHours / combinedDevices) : 0;
+      // Target ÷ Uploaded — a business right on target reads 100%; one
+      // that's under target reads above 100%.
+      row.utilization =
+        combinedHours > 0 ? round1((combinedTarget / combinedHours) * 100) : 0;
       return row;
     });
   }, [weeks, businesses, selected]);
@@ -150,7 +153,7 @@ export default function WeeklyHoursByTeamChart({
                 orientation="right"
                 tick={{ fontSize: 11 }}
                 label={{
-                  value: "Utilization (hrs/issued device)",
+                  value: "Utilization % (Target ÷ Uploaded)",
                   angle: 90,
                   position: "insideRight",
                   style: { fontSize: 11, fill: "#71717a" },
@@ -160,7 +163,7 @@ export default function WeeklyHoursByTeamChart({
                 formatter={(value, name) => {
                   const label =
                     name === "utilization"
-                      ? "Utilization (hrs/issued device)"
+                      ? "Utilization % (Target ÷ Uploaded)"
                       : name === "combinedHours"
                         ? "Combined total"
                         : (businesses.find((b) => b.id === name)?.name ??
@@ -172,7 +175,7 @@ export default function WeeklyHoursByTeamChart({
                 wrapperStyle={{ fontSize: 11 }}
                 formatter={(value: string) =>
                   value === "utilization"
-                    ? "Utilization (hrs/issued device)"
+                    ? "Utilization % (Target ÷ Uploaded)"
                     : value === "combinedHours"
                       ? "Combined total"
                       : businesses.find((b) => b.id === value)?.name ?? value

@@ -8,17 +8,24 @@ import {
 } from "@/lib/sales-data";
 import { updateBusinessNotes } from "@/lib/actions/business-actions";
 import { updateSalesBusinessNotes } from "@/lib/actions/sales-business-actions";
-import { effectiveDevicesForBusiness } from "@/lib/utilization";
+import {
+  effectiveDevicesForBusiness,
+  capacityHoursForDeviceType,
+  WORK_DAYS_PER_WEEK,
+  type BusinessDeviceCounts,
+} from "@/lib/utilization";
+import { DEVICE_TYPES } from "@/lib/constants";
 import OverallMonitoringDashboard from "@/components/OverallMonitoringDashboard";
 
-function effectiveDeviceTotal(business: {
-  issuedMonoCount: number;
-  issuedMulticamCount: number;
-  defectiveMonoCount: number;
-  defectiveMulticamCount: number;
-}): number {
+// # of devices × hours/device × 6 work days = this business's fixed weekly
+// target, summed across all its device types.
+function weeklyTargetHours(business: BusinessDeviceCounts): number {
   const effective = effectiveDevicesForBusiness(business);
-  return (effective.MONO ?? 0) + (effective.MULTICAM ?? 0);
+  return DEVICE_TYPES.reduce(
+    (sum, type) =>
+      sum + capacityHoursForDeviceType(effective, type.value) * WORK_DAYS_PER_WEEK,
+    0,
+  );
 }
 
 // Always show live data — never freeze this dashboard as a static build-time
@@ -38,12 +45,12 @@ export default async function OverallMonitoringPage() {
     ...businesses.map((b) => ({
       id: b.id,
       name: b.name,
-      effectiveDeviceTotal: effectiveDeviceTotal(b),
+      weeklyTargetHours: weeklyTargetHours(b),
     })),
     ...salesBusinesses.map((b) => ({
       id: b.id,
       name: b.name,
-      effectiveDeviceTotal: effectiveDeviceTotal(b),
+      weeklyTargetHours: weeklyTargetHours(b),
     })),
   ].sort((a, b) => a.name.localeCompare(b.name));
 

@@ -15,8 +15,9 @@ export function categoryLabel(value: string): string {
 export const MONITORING_CADENCE_DAYS = 3;
 
 export const DEVICE_TYPES = [
-  { value: "MONO", label: "Mono" },
+  { value: "MONO", label: "Mono iPhone" },
   { value: "MULTICAM", label: "Multicam" },
+  { value: "MONO_INSTA360", label: "Mono Insta 360" },
 ] as const;
 
 export type DeviceType = (typeof DEVICE_TYPES)[number]["value"];

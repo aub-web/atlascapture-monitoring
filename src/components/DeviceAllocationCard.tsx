@@ -1,77 +1,76 @@
 import InlineEditNumberField from "@/components/InlineEditNumberField";
-import { effectiveDeviceCount } from "@/lib/utilization";
+import { DEVICE_TYPES } from "@/lib/constants";
+import { effectiveDeviceCount, type BusinessDeviceCounts } from "@/lib/utilization";
+
+// Maps a device type value to its issued/defective field-name suffix, e.g.
+// "MONO_INSTA360" -> "MonoInsta360Count".
+function fieldSuffix(deviceType: string): string {
+  return (
+    deviceType
+      .toLowerCase()
+      .split("_")
+      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+      .join("") + "Count"
+  );
+}
 
 export default function DeviceAllocationCard({
   id,
-  issuedMonoCount,
-  issuedMulticamCount,
-  defectiveMonoCount,
-  defectiveMulticamCount,
+  counts,
   action,
 }: {
   id: string;
-  issuedMonoCount: number;
-  issuedMulticamCount: number;
-  defectiveMonoCount: number;
-  defectiveMulticamCount: number;
+  counts: BusinessDeviceCounts;
   action: (formData: FormData) => Promise<void>;
 }) {
-  const effectiveMono = effectiveDeviceCount(issuedMonoCount, defectiveMonoCount);
-  const effectiveMulticam = effectiveDeviceCount(
-    issuedMulticamCount,
-    defectiveMulticamCount,
-  );
-
   return (
     <div className="rounded-lg border border-zinc-200 bg-white p-4">
-      <div className="grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-4">
-        <div>
-          <p className="text-xs text-zinc-500">Issued Mono</p>
-          <InlineEditNumberField
-            action={action}
-            id={id}
-            field="issuedMonoCount"
-            value={issuedMonoCount}
-          />
-        </div>
-        <div>
-          <p className="text-xs text-zinc-500">Issued Multicam</p>
-          <InlineEditNumberField
-            action={action}
-            id={id}
-            field="issuedMulticamCount"
-            value={issuedMulticamCount}
-          />
-        </div>
-        <div>
-          <p className="text-xs text-zinc-500">Defective Mono</p>
-          <InlineEditNumberField
-            action={action}
-            id={id}
-            field="defectiveMonoCount"
-            value={defectiveMonoCount}
-          />
-        </div>
-        <div>
-          <p className="text-xs text-zinc-500">Defective Multicam</p>
-          <InlineEditNumberField
-            action={action}
-            id={id}
-            field="defectiveMulticamCount"
-            value={defectiveMulticamCount}
-          />
-        </div>
+      <div className="grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-3">
+        {DEVICE_TYPES.map((deviceType) => {
+          const suffix = fieldSuffix(deviceType.value);
+          const issuedField = `issued${suffix}` as keyof BusinessDeviceCounts;
+          const defectiveField = `defective${suffix}` as keyof BusinessDeviceCounts;
+          const issued = counts[issuedField];
+          const defective = counts[defectiveField];
+          const effective = effectiveDeviceCount(issued, defective);
+          return (
+            <div key={deviceType.value}>
+              <p className="text-xs font-medium text-zinc-700">
+                {deviceType.label}
+              </p>
+              <div className="mt-1.5 flex items-center gap-3">
+                <div>
+                  <p className="text-[11px] text-zinc-400">Issued</p>
+                  <InlineEditNumberField
+                    action={action}
+                    id={id}
+                    field={issuedField}
+                    value={issued}
+                  />
+                </div>
+                <div>
+                  <p className="text-[11px] text-zinc-400">Defective</p>
+                  <InlineEditNumberField
+                    action={action}
+                    id={id}
+                    field={defectiveField}
+                    value={defective}
+                  />
+                </div>
+                <div>
+                  <p className="text-[11px] text-zinc-400">Effective</p>
+                  <p className="px-1.5 py-1 text-sm font-medium text-zinc-900">
+                    {effective}
+                  </p>
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
       <p className="mt-3 text-xs text-zinc-400">
-        Capacity is based on{" "}
-        <span className="font-medium text-zinc-600">
-          {effectiveMono} effective Mono
-        </span>{" "}
-        and{" "}
-        <span className="font-medium text-zinc-600">
-          {effectiveMulticam} effective Multicam
-        </span>{" "}
-        devices (issued minus defective).
+        Utilization capacity is based on effective devices (issued minus
+        defective) for each device type.
       </p>
     </div>
   );

@@ -143,8 +143,10 @@ export async function updateSalesBusinessNotes(
 const DEVICE_COUNT_FIELDS = [
   "issuedMonoCount",
   "issuedMulticamCount",
+  "issuedMonoInsta360Count",
   "defectiveMonoCount",
   "defectiveMulticamCount",
+  "defectiveMonoInsta360Count",
 ] as const;
 
 export async function updateSalesBusinessDevices(

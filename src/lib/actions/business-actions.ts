@@ -147,8 +147,10 @@ export async function updateBusinessNotes(formData: FormData): Promise<void> {
 const DEVICE_COUNT_FIELDS = [
   "issuedMonoCount",
   "issuedMulticamCount",
+  "issuedMonoInsta360Count",
   "defectiveMonoCount",
   "defectiveMulticamCount",
+  "defectiveMonoInsta360Count",
 ] as const;
 
 export async function updateBusinessDevices(formData: FormData): Promise<void> {

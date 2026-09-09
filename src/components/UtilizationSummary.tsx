@@ -8,6 +8,7 @@ import {
   type UtilizationEntryLike,
   type UtilizationPeriod,
 } from "@/lib/utilization";
+import { DEVICE_TYPES } from "@/lib/constants";
 
 const PERIODS: { value: UtilizationPeriod; label: string }[] = [
   { value: "daily", label: "Daily" },
@@ -103,8 +104,6 @@ export default function UtilizationSummary({
   effectiveDevices: Record<string, number>;
 }) {
   const [period, setPeriod] = useState<UtilizationPeriod>("daily");
-  const monoEntries = entries.filter((e) => e.deviceType === "MONO");
-  const multicamEntries = entries.filter((e) => e.deviceType === "MULTICAM");
 
   return (
     <div className="space-y-6">
@@ -125,18 +124,15 @@ export default function UtilizationSummary({
         ))}
       </div>
 
-      <DeviceTypePanel
-        label="Mono"
-        entries={monoEntries}
-        period={period}
-        effectiveDevices={effectiveDevices}
-      />
-      <DeviceTypePanel
-        label="Multicam"
-        entries={multicamEntries}
-        period={period}
-        effectiveDevices={effectiveDevices}
-      />
+      {DEVICE_TYPES.map((deviceType) => (
+        <DeviceTypePanel
+          key={deviceType.value}
+          label={deviceType.label}
+          entries={entries.filter((e) => e.deviceType === deviceType.value)}
+          period={period}
+          effectiveDevices={effectiveDevices}
+        />
+      ))}
     </div>
   );
 }

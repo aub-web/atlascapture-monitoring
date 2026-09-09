@@ -35,10 +35,12 @@ model Business {
   // currently defective. Utilization capacity is (issued - defective) *
   // HOURS_PER_DEVICE, not whatever count is typed into a given day's
   // utilization entry — see src/lib/utilization.ts.
-  issuedMonoCount        Int      @default(0)
-  issuedMulticamCount    Int      @default(0)
-  defectiveMonoCount     Int      @default(0)
-  defectiveMulticamCount Int      @default(0)
+  issuedMonoCount           Int      @default(0)
+  issuedMulticamCount       Int      @default(0)
+  issuedMonoInsta360Count   Int      @default(0)
+  defectiveMonoCount        Int      @default(0)
+  defectiveMulticamCount    Int      @default(0)
+  defectiveMonoInsta360Count Int     @default(0)
   createdAt        DateTime @default(now())
 
   checkIns           CheckIn[]
@@ -121,10 +123,12 @@ model SalesBusiness {
   qcFeedback String?
   remarks    String?
   // See the matching comment on Business — same issued/defective model.
-  issuedMonoCount        Int      @default(0)
-  issuedMulticamCount    Int      @default(0)
-  defectiveMonoCount     Int      @default(0)
-  defectiveMulticamCount Int      @default(0)
+  issuedMonoCount           Int      @default(0)
+  issuedMulticamCount       Int      @default(0)
+  issuedMonoInsta360Count   Int      @default(0)
+  defectiveMonoCount        Int      @default(0)
+  defectiveMulticamCount    Int      @default(0)
+  defectiveMonoInsta360Count Int     @default(0)
   createdAt  DateTime @default(now())
 
   utilizationEntries SalesUtilizationEntry[]
