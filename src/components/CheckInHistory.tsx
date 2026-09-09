@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { deleteCheckIn } from "@/lib/actions/checkin-actions";
 import { formatDate } from "@/lib/date";
 import { deviceTypeLabel } from "@/lib/constants";
 import ConfirmSubmitButton from "@/components/ConfirmSubmitButton";
@@ -19,10 +18,14 @@ type CheckIn = {
 export default function CheckInHistory({
   businessId,
   checkIns,
+  deleteAction,
+  editBasePath,
   isAdmin = false,
 }: {
   businessId: string;
   checkIns: CheckIn[];
+  deleteAction: (formData: FormData) => Promise<void>;
+  editBasePath: string;
   isAdmin?: boolean;
 }) {
   if (checkIns.length === 0) {
@@ -62,13 +65,13 @@ export default function CheckInHistory({
               <div className="flex shrink-0 items-center gap-3">
                 {isAdmin && (
                   <Link
-                    href={`/businesses/${businessId}/checkins/${checkIn.id}/edit`}
+                    href={`${editBasePath}/${businessId}/checkins/${checkIn.id}/edit`}
                     className="text-xs font-medium text-zinc-500 hover:text-zinc-900"
                   >
                     Edit
                   </Link>
                 )}
-                <form action={deleteCheckIn}>
+                <form action={deleteAction}>
                   <input type="hidden" name="id" value={checkIn.id} />
                   <input type="hidden" name="businessId" value={businessId} />
                   <ConfirmSubmitButton

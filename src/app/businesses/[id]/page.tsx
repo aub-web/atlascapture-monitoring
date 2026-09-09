@@ -13,6 +13,7 @@ import {
   createUtilizationEntry,
   deleteUtilizationEntry,
 } from "@/lib/actions/utilization-actions";
+import { deleteCheckIn } from "@/lib/actions/checkin-actions";
 import CheckInForm from "@/components/CheckInForm";
 import CheckInHistory from "@/components/CheckInHistory";
 import ConfirmSubmitButton from "@/components/ConfirmSubmitButton";
@@ -128,6 +129,8 @@ export default async function BusinessDetailPage({
           <CheckInHistory
             businessId={business.id}
             checkIns={business.checkIns}
+            deleteAction={deleteCheckIn}
+            editBasePath="/businesses"
             isAdmin={isAdmin}
           />
         </div>

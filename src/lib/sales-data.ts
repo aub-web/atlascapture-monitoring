@@ -35,10 +35,15 @@ export function getSalesUtilizationEntry(id: string) {
   return prisma.salesUtilizationEntry.findUnique({ where: { id } });
 }
 
+export function getSalesCheckIn(id: string) {
+  return prisma.salesCheckIn.findUnique({ where: { id } });
+}
+
 export function getSalesBusinessWithUtilization(id: string) {
   return prisma.salesBusiness.findUnique({
     where: { id },
     include: {
+      checkIns: { orderBy: { checkInDate: "desc" } },
       utilizationEntries: { orderBy: { date: "desc" } },
       deviceCountHistory: true,
     },

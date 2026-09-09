@@ -152,11 +152,37 @@ model SalesBusiness {
   defectiveMonoInsta360Count Int     @default(0)
   createdAt  DateTime @default(now())
 
+  checkIns           SalesCheckIn[]
   utilizationEntries SalesUtilizationEntry[]
   deviceCountHistory SalesDeviceCountSnapshot[]
 
   @@index([salesAgent])
   @@index([status])
+}
+
+// See the matching comment on CheckIn — same model, for Sales Monitoring
+// businesses.
+model SalesCheckIn {
+  id         String        @id @default(cuid())
+  businessId String
+  business   SalesBusiness @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  checkInDate DateTime
+
+  recordingsCount Int
+  startTime String
+  stopTime  String
+  expectedHours Float
+
+  deviceType String
+
+  whatWentWrong       String?
+  whatNeedsImprovement String?
+
+  createdAt DateTime @default(now())
+
+  @@index([businessId])
+  @@index([checkInDate])
 }
 
 // See the matching comment on DeviceCountSnapshot — same model, for Sales

@@ -10,7 +10,15 @@ import {
   createSalesUtilizationEntry,
   deleteSalesUtilizationEntry,
 } from "@/lib/actions/sales-utilization-actions";
+import {
+  createSalesCheckIn,
+  deleteSalesCheckIn,
+} from "@/lib/actions/sales-checkin-actions";
+import { MONITORING_CADENCE_DAYS } from "@/lib/constants";
+import { averageHours } from "@/lib/hours";
 import ConfirmSubmitButton from "@/components/ConfirmSubmitButton";
+import CheckInForm from "@/components/CheckInForm";
+import CheckInHistory from "@/components/CheckInHistory";
 import UtilizationForm from "@/components/UtilizationForm";
 import UtilizationHistory from "@/components/UtilizationHistory";
 import UtilizationSummary from "@/components/UtilizationSummary";
@@ -33,6 +41,13 @@ export default async function SalesBusinessDetailPage({
   if (!business) {
     notFound();
   }
+
+  const avgExpectedHours = averageHours(
+    business.checkIns.map((c) => c.expectedHours),
+  );
+  const avgRecorded = averageHours(
+    business.checkIns.map((c) => c.recordingsCount),
+  );
 
   return (
     <main className="mx-auto w-full max-w-2xl flex-1 px-6 py-10">
@@ -68,7 +83,7 @@ export default async function SalesBusinessDetailPage({
             <input type="hidden" name="id" value={business.id} />
             <ConfirmSubmitButton
               label="Delete business"
-              confirmMessage={`Delete ${business.name} and all of its utilization entries?`}
+              confirmMessage={`Delete ${business.name} and all of its check-ins and utilization entries?`}
               className="text-xs font-medium text-red-500 hover:text-red-700"
             />
           </form>
@@ -84,6 +99,40 @@ export default async function SalesBusinessDetailPage({
             id={business.id}
             counts={business}
             action={updateSalesBusinessDevices}
+          />
+        </div>
+      </section>
+
+      <section className="mt-8">
+        <h2 className="text-sm font-semibold tracking-wide text-zinc-500 uppercase">
+          Log a check-in
+        </h2>
+        <p className="mt-1 text-xs text-zinc-400">
+          Monitoring cadence: every {MONITORING_CADENCE_DAYS} days
+        </p>
+        <div className="mt-3 rounded-lg border border-zinc-200 bg-white p-4">
+          <CheckInForm businessId={business.id} action={createSalesCheckIn} />
+        </div>
+      </section>
+
+      <section className="mt-8">
+        <div className="flex items-baseline justify-between">
+          <h2 className="text-sm font-semibold tracking-wide text-zinc-500 uppercase">
+            Check-in history
+          </h2>
+          {avgExpectedHours !== null && (
+            <p className="text-xs text-zinc-400">
+              Avg {avgRecorded} recorders / {avgExpectedHours}h expected
+            </p>
+          )}
+        </div>
+        <div className="mt-3">
+          <CheckInHistory
+            businessId={business.id}
+            checkIns={business.checkIns}
+            deleteAction={deleteSalesCheckIn}
+            editBasePath="/sales/businesses"
+            isAdmin={isAdmin}
           />
         </div>
       </section>
