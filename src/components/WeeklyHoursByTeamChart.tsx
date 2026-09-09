@@ -12,7 +12,11 @@ import {
   YAxis,
 } from "recharts";
 import type { WeekBucket } from "@/lib/weekly-hours";
-import { weeklyTargetHoursAt, type DeviceSnapshot } from "@/lib/utilization";
+import {
+  weeklyTargetHoursAt,
+  utilizationPercent,
+  type DeviceSnapshot,
+} from "@/lib/utilization";
 
 type BusinessRef = { id: string; name: string; snapshots: DeviceSnapshot[] };
 
@@ -63,10 +67,7 @@ export default function WeeklyHoursByTeamChart({
         combinedTarget += weeklyTargetHoursAt(b.snapshots, week.weekStart);
       }
       row.combinedHours = round1(combinedHours);
-      // Target ÷ Uploaded — a business right on target reads 100%; one
-      // that's under target reads above 100%.
-      row.utilization =
-        combinedHours > 0 ? round1((combinedTarget / combinedHours) * 100) : 0;
+      row.utilization = utilizationPercent(combinedHours, combinedTarget) ?? 0;
       return row;
     });
   }, [weeks, businesses, selected]);
@@ -154,7 +155,7 @@ export default function WeeklyHoursByTeamChart({
                 orientation="right"
                 tick={{ fontSize: 11 }}
                 label={{
-                  value: "Utilization % (Target ÷ Uploaded)",
+                  value: "Utilization % (Uploaded ÷ Target)",
                   angle: 90,
                   position: "insideRight",
                   style: { fontSize: 11, fill: "#71717a" },
@@ -164,7 +165,7 @@ export default function WeeklyHoursByTeamChart({
                 formatter={(value, name) => {
                   const label =
                     name === "utilization"
-                      ? "Utilization % (Target ÷ Uploaded)"
+                      ? "Utilization % (Uploaded ÷ Target)"
                       : name === "combinedHours"
                         ? "Combined total"
                         : (businesses.find((b) => b.id === name)?.name ??
@@ -176,7 +177,7 @@ export default function WeeklyHoursByTeamChart({
                 wrapperStyle={{ fontSize: 11 }}
                 formatter={(value: string) =>
                   value === "utilization"
-                    ? "Utilization % (Target ÷ Uploaded)"
+                    ? "Utilization % (Uploaded ÷ Target)"
                     : value === "combinedHours"
                       ? "Combined total"
                       : businesses.find((b) => b.id === value)?.name ?? value

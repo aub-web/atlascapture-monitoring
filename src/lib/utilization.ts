@@ -100,15 +100,14 @@ function round2(value: number): number {
   return Math.round(value * 100) / 100;
 }
 
-// Deliberately Target ÷ Uploaded (not the more common Uploaded ÷ Target) —
-// per the weekly utilization computation spec. A business right on target
-// reads 100%; one that's under target reads above 100%, not below.
+// Uploaded ÷ Target: 100% = hit the target exactly, below 100% = short of
+// it, above 100% = exceeded it.
 export function utilizationPercent(
   recordedHours: number,
   capacityHours: number,
 ): number | null {
-  if (recordedHours <= 0) return null;
-  return round1((capacityHours / recordedHours) * 100);
+  if (capacityHours <= 0) return null;
+  return round1((recordedHours / capacityHours) * 100);
 }
 
 export type UtilizationAction = {

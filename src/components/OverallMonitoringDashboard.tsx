@@ -247,7 +247,7 @@ export default function OverallMonitoringDashboard({
         </h2>
         <p className="mt-1 text-xs text-zinc-400">
           Lines = total hours per business per week. Dashed line = weekly
-          utilization (weekly target ÷ uploaded hours) across selected
+          utilization (uploaded hours ÷ weekly target) across selected
           businesses.
         </p>
         <div className="mt-3">
